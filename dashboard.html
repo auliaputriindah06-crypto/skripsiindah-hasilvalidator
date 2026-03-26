@@ -1,0 +1,1069 @@
+<!doctype html>
+<html lang="id">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Menu Utama | Hidrokarbon 🏠</title>
+  <link rel="icon" href="favicon.png" type="image/png">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap');
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f0f9ff;
+            overflow-x: hidden;
+            -webkit-tap-highlight-color: transparent; /* Remove tap highlight on mobile */
+        }
+
+        /* --- Existing Styles --- */
+        
+        .molecule {
+            position: absolute;
+            border-radius: 50%;
+            animation: float 8s infinite ease-in-out;
+            pointer-events: none; /* Prevent blocking clicks */
+        }
+        
+        /* Responsive Molecules Sizes */
+        .molecule-1 {
+            width: 80px; height: 80px;
+            background-color: rgba(59, 130, 246, 0.2);
+            top: 10%; left: 5%;
+            animation-delay: 0s;
+        }
+        @media (min-width: 768px) { .molecule-1 { width: 120px; height: 120px; left: 10%; } }
+        
+        .molecule-2 {
+            width: 60px; height: 60px;
+            background-color: rgba(16, 185, 129, 0.2);
+            top: 15%; right: 5%;
+            animation-delay: 1s;
+        }
+        @media (min-width: 768px) { .molecule-2 { width: 80px; height: 80px; top: 20%; right: 15%; } }
+        
+        .molecule-3 {
+            width: 100px; height: 100px;
+            background-color: rgba(245, 158, 11, 0.2);
+            bottom: 10%; left: 5%;
+            animation-delay: 2s;
+        }
+        @media (min-width: 768px) { .molecule-3 { width: 150px; height: 150px; bottom: 15%; left: 15%; } }
+        
+        .molecule-4 {
+            width: 70px; height: 70px;
+            background-color: rgba(236, 72, 153, 0.2);
+            bottom: 15%; right: 5%;
+            animation-delay: 3s;
+        }
+        @media (min-width: 768px) { .molecule-4 { width: 100px; height: 100px; bottom: 20%; right: 10%; } }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(10deg); }
+        }
+        
+        .carbon {
+            width: 30px; height: 30px;
+            background-color: #374151;
+            border-radius: 50%;
+            position: absolute;
+        }
+        
+        .hydrogen {
+            width: 20px; height: 20px;
+            background-color: #60a5fa;
+            border-radius: 50%;
+            position: absolute;
+        }
+        
+        .bond {
+            height: 2px;
+            background-color: #6b7280;
+            position: absolute;
+            transform-origin: left center;
+        }
+        
+        .btn-shine {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn-shine::after {
+            content: '';
+            position: absolute;
+            top: -50%; left: -50%;
+            width: 200%; height: 200%;
+            background: linear-gradient(
+                to right,
+                rgba(255, 255, 255, 0) 0%,
+                rgba(255, 255, 255, 0.3) 50%,
+                rgba(255, 255, 255, 0) 100%
+            );
+            transform: rotate(30deg);
+            animation: shine 3s infinite;
+        }
+        
+        @keyframes shine {
+            0% { left: -100%; opacity: 0; }
+            20% { left: 100%; opacity: 0.6; }
+            100% { left: 100%; opacity: 0; }
+        }
+        
+        .shake { animation: shake 0.5s; }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+            20%, 40%, 60%, 80% { transform: translateX(5px); }
+        }
+        
+        .form-field:focus-within label {
+            transform: translateY(-24px) scale(0.8);
+            color: #3b82f6;
+        }
+        
+        .form-field input:not(:placeholder-shown) + label {
+            transform: translateY(-24px) scale(0.8);
+            color: #3b82f6;
+        }
+        
+        .form-field label {
+            transform-origin: left top;
+            transition: all 0.2s ease-out;
+        }
+        
+        .fade-in { animation: fadeIn 1s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        
+        .scale-in { animation: scaleIn 0.5s ease-out; }
+        @keyframes scaleIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        
+        .slide-up { animation: slideUp 0.8s ease-out; }
+        @keyframes slideUp { from { transform: translateY(50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        
+        .pulse { animation: pulse 2s infinite; }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
+        
+        .molecule-icon {
+            position: relative;
+            width: 140px; height: 140px;
+            margin: 0 auto 20px;
+        }
+        @media (min-width: 768px) { .molecule-icon { width: 200px; height: 200px; } }
+        
+        .atom {
+            position: absolute;
+            border-radius: 50%;
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.8);
+        }
+        
+        .carbon-atom {
+            width: 50px; height: 50px;
+            background-color: #374151;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 2;
+        }
+        @media (min-width: 768px) { .carbon-atom { width: 60px; height: 60px; } }
+        
+        .hydrogen-atom {
+            width: 25px; height: 25px;
+            background-color: #60a5fa;
+            animation: orbitAround 4s infinite linear;
+        }
+        @media (min-width: 768px) { .hydrogen-atom { width: 30px; height: 30px; } }
+        
+        .h1 { animation-delay: 0s; }
+        .h2 { animation-delay: 1s; }
+        .h3 { animation-delay: 2s; }
+        .h4 { animation-delay: 3s; }
+        
+        @keyframes orbitAround {
+            0% { transform: rotate(0deg) translateX(60px) rotate(0deg); }
+            100% { transform: rotate(360deg) translateX(60px) rotate(-360deg); }
+        }
+        @media (min-width: 768px) {
+            @keyframes orbitAround {
+                0% { transform: rotate(0deg) translateX(80px) rotate(0deg); }
+                100% { transform: rotate(360deg) translateX(80px) rotate(-360deg); }
+            }
+        }
+        
+        .loading-bar {
+            width: 180px; height: 6px;
+            background-color: rgba(255, 255, 255, 0.3);
+            border-radius: 3px;
+            margin-top: 30px;
+            overflow: hidden;
+            margin-left: auto; margin-right: auto;
+        }
+        @media (min-width: 768px) { .loading-bar { width: 200px; } }
+        
+        .loading-progress {
+            height: 100%;
+            background-color: white;
+            border-radius: 3px;
+            width: 0%;
+            transition: width 3s ease-in-out;
+        }
+        
+        /* Dashboard/Main Menu Styles */
+        .dashboard {
+            display: none;
+            min-height: 100vh;
+            background-color: #f0f9ff;
+            padding: 16px;
+        }
+        @media (min-width: 768px) { .dashboard { padding: 24px; } }
+        
+        .dashboard-header {
+            background: linear-gradient(135deg, #0ea5e9, #3b82f6);
+            border-radius: 16px;
+            padding: 20px;
+            color: white;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .menu-card {
+            background-color: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .menu-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .menu-icon {
+            width: 50px; height: 50px;
+            background-color: #e0f2fe;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 12px;
+        }
+        @media (min-width: 768px) { .menu-icon { width: 60px; height: 60px; margin-bottom: 15px; } }
+        
+        .page-transition { animation: fadeTransition 0.5s ease-out; }
+        @keyframes fadeTransition { from { opacity: 0; } to { opacity: 1; } }
+        
+        /* Learning Objectives Styles */
+        .objectives-container {
+            display: none;
+            min-height: 100vh;
+            background-color: #f0f9ff;
+            padding: 16px;
+        }
+        @media (min-width: 768px) { .objectives-container { padding: 24px; } }
+        
+        .objective-item {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 12px;
+            padding: 12px;
+            border-radius: 8px;
+            background-color: white;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            transition: transform 0.2s ease;
+        }
+        @media (min-width: 768px) { .objective-item { margin-bottom: 16px; } }
+        
+        .objective-item:hover { transform: translateX(5px); }
+        
+        .objective-number {
+            display: flex; align-items: center; justify-content: center;
+            width: 28px; height: 28px;
+            border-radius: 50%;
+            background-color: #3b82f6;
+            color: white;
+            font-weight: bold;
+            font-size: 14px;
+            margin-right: 10px;
+            flex-shrink: 0;
+        }
+        @media (min-width: 768px) { .objective-number { width: 32px; height: 32px; margin-right: 12px; font-size: 16px; } }
+        
+        .objective-check { margin-left: auto; color: #10b981; flex-shrink: 0; }
+        
+        .btn-pulse { animation: btnPulse 2s infinite; }
+        @keyframes btnPulse {
+            0% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(59, 130, 246, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
+        }
+        
+        .feature-card {
+            background-color: white;
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s ease;
+        }
+        .feature-card:hover { transform: translateY(-5px); }
+        
+        .feature-icon {
+            width: 40px; height: 40px;
+            border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            margin-bottom: 10px;
+        }
+        @media (min-width: 768px) { .feature-icon { width: 50px; height: 50px; margin-bottom: 12px; } }
+        
+        .molecule-bg {
+            position: absolute;
+            width: 100%; height: 100%;
+            top: 0; left: 0;
+            z-index: -1;
+            opacity: 0.1;
+            pointer-events: none;
+        }
+        
+        .floating-molecule {
+            position: absolute;
+            animation: floatAround 20s infinite linear;
+        }
+        @keyframes floatAround {
+            0% { transform: translate(0, 0) rotate(0deg); }
+            25% { transform: translate(50px, 20px) rotate(90deg); }
+            50% { transform: translate(0, 50px) rotate(180deg); }
+            75% { transform: translate(-50px, 20px) rotate(270deg); }
+            100% { transform: translate(0, 0) rotate(360deg); }
+        }
+        
+        /* Navigation buttons */
+        .nav-button {
+            position: fixed;
+            bottom: 20px;
+            width: 48px; height: 48px; /* Slightly larger for touch */
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            z-index: 100;
+            transition: all 0.3s ease;
+        }
+        .nav-button:hover { transform: translateY(-3px); box-shadow: 0 6px 15px rgba(0, 0, 0, 0.25); }
+        .nav-button:active { transform: scale(0.95); } /* Touch feedback */
+        
+        /* Modified Home Button Style */
+        .home-button { 
+            right: 20px; 
+            top: 20px; 
+            bottom: auto !important; /* Override the default bottom positioning */
+            background-color: #3b82f6; 
+            color: white; 
+            border: 2px solid white; /* Added border for better visibility on colored headers */
+        }
+        
+        /* Editable link styles */
+        .editable-link { position: relative; cursor: pointer; }
+        @media (min-width: 1024px) {
+            .editable-link:hover::after {
+                content: '✏️';
+                position: absolute;
+                right: -25px; top: 50%;
+                transform: translateY(-50%);
+                font-size: 14px;
+            }
+        }
+        
+        .link-edit-modal {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex; align-items: center; justify-content: center;
+            z-index: 1000;
+            opacity: 0; visibility: hidden;
+            transition: all 0.3s ease;
+            padding: 16px;
+        }
+        .link-edit-modal.active { opacity: 1; visibility: visible; }
+        
+        .link-edit-content {
+            background-color: white; padding: 20px;
+            border-radius: 12px;
+            width: 100%; max-width: 500px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            transform: translateY(20px);
+            transition: all 0.3s ease;
+        }
+        .link-edit-modal.active .link-edit-content { transform: translateY(0); }
+
+        /* Profile Badge Glow */
+        .badge-glow { animation: badgeGlow 3s ease-in-out infinite; }
+        @keyframes badgeGlow {
+            0%, 100% { filter: drop-shadow(0 0 0px rgba(59, 130, 246, 0.4)); }
+            50% { filter: drop-shadow(0 0 15px rgba(59, 130, 246, 0.8)); }
+        }
+
+        /* Card Hover Lift */
+        .card-lift:hover { transform: translateY(-8px); }
+        
+        /* Utility for hiding scrollbar in tabs but keeping functionality */
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
+        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+  <style>@view-transition { navigation: auto; }</style>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+  <script src="/_sdk/element_sdk.js" type="text/javascript"></script>
+ </head>
+ <body class="min-h-screen flex flex-col"><!-- Navigation Buttons --> <button id="homeButton" class="nav-button home-button hidden">
+   <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewbox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+   </svg></button> <!-- Learning Objectives Page -->
+  <div id="objectivesPage" class="objectives-container hidden">
+   <div class="container mx-auto max-w-4xl"><!-- Background Molecules -->
+    <div class="molecule molecule-1"></div>
+    <div class="molecule molecule-2"></div>
+    <div class="molecule molecule-3"></div>
+    <div class="molecule molecule-4"></div><!-- Header -->
+    <div class="bg-gradient-to-r from-blue-50 to-cyan-400 rounded-2xl p-6 text-white mb-6 shadow-lg">
+     <div class="flex justify-between items-center">
+      <div>
+       <h1 class="text-xl md:text-3xl font-bold">Tujuan Pembelajaran</h1>
+       <p class="text-white text-opacity-90 mt-1 text-sm md:text-base" id="objectivesGreeting">Hai, Peserta Didik!</p>
+      </div>
+      <div class="hidden md:block">
+       <svg width="60" height="60" viewbox="0 0 100 100"><circle cx="50" cy="50" r="15" fill="#fff" /> <!-- Carbon --> <circle cx="50" cy="20" r="10" fill="#a5f3fc" /> <!-- H top --> <circle cx="20" cy="50" r="10" fill="#a5f3fc" /> <!-- H left --> <circle cx="80" cy="50" r="10" fill="#a5f3fc" /> <!-- H right --> <circle cx="50" cy="80" r="10" fill="#a5f3fc" /> <!-- H bottom --> <line x1="50" y1="35" x2="50" y2="20" stroke="#fff" stroke-width="2" /> <!-- Bond top --> <line x1="35" y1="50" x2="20" y2="50" stroke="#fff" stroke-width="2" /> <!-- Bond left --> <line x1="65" y1="50" x2="80" y2="50" stroke="#fff" stroke-width="2" /> <!-- Bond right --> <line x1="50" y1="65" x2="50" y2="80" stroke="#fff" stroke-width="2" /> <!-- Bond bottom -->
+       </svg>
+      </div>
+     </div>
+    </div><!-- Objectives List -->
+    <div class="bg-white rounded-2xl p-4 md:p-6 shadow-md mb-6">
+     <p class="text-gray-600 mb-4 md:mb-6 text-sm md:text-base">Setelah mempelajari materi hidrokarbon, diharapkan:</p>
+     <div class="space-y-3 md:space-y-4"><!-- Objective 1 -->
+      <div class="objective-item slide-up" style="animation-delay: 0.1s">
+       <div class="objective-number">
+        1
+       </div>
+       <div class="objective-text">
+        <p class="text-sm md:text-base" style="text-align: justify; text-justify: inter-word;">Peserta didik mampu menganalisis kekhasan atom karbon serta menggolongkan senyawa hidrokarbon berdasarkan kejenuhan ikatan dan bentuk rantai karbon.</p>
+       </div>
+       <div class="objective-check">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 md:h-6 md:w-6" fill="none" viewbox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+        </svg>
+       </div>
+      </div><!-- Objective 2 -->
+      <div class="objective-item slide-up" style="animation-delay: 0.2s">
+       <div class="objective-number">
+        2
+       </div>
+       <div class="objective-text">
+        <p class="text-sm md:text-base" style="text-align: justify; text-justify: inter-word;">Peserta didik mampu menerapkan aturan tata nama IUPAC dan menganalisis keisomeran pada senyawa hidrokarbon.</p>
+       </div>
+       <div class="objective-check">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 md:h-6 md:w-6" fill="none" viewbox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+        </svg>
+       </div>
+      </div><!-- Objective 3 -->
+      <div class="objective-item slide-up" style="animation-delay: 0.3s">
+       <div class="objective-number">
+        3
+       </div>
+       <div class="objective-text">
+        <p class="text-sm md:text-base" style="text-align: justify; text-justify: inter-word;">Peserta didik mampu memprediksi sifat fisik dan reaksi kimia pada senyawa hidrokarbon.</p>
+       </div>
+       <div class="objective-check">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 md:h-6 md:w-6" fill="none" viewbox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+        </svg>
+       </div>
+      </div><!-- Objective 4 -->
+      <div class="objective-item slide-up" style="animation-delay: 0.4s">
+       <div class="objective-number">
+        4
+       </div>
+       <div class="objective-text">
+        <p class="text-sm md:text-base" style="text-align: justify; text-justify: inter-word;">Peserta didik mampu mengevaluasi penerapan hidrokarbon dalam konteks isu-isu sosio-sains (SSI).</p>
+       </div>
+       <div class="objective-check">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 md:h-6 md:w-6" fill="none" viewbox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+        </svg>
+       </div>
+      </div>
+     </div>
+    </div><!-- Continue Button -->
+    <div class="text-center"><button id="lanjutkanButton" class="btn-pulse bg-gradient-to-r from-blue-500 to-cyan-400 text-white font-bold py-3 px-8 rounded-lg hover:from-blue-600 hover:to-cyan-500 transition-all shadow-md transform active:scale-95"> Lanjutkan </button>
+    </div>
+   </div>
+  </div><!-- Pusat Informasi Page -->
+  <div id="pusatInfoPage" class="dashboard hidden">
+   <div class="container mx-auto max-w-6xl lg:max-w-7xl">
+    <!-- Wrapper Sticky Khusus Desktop -->
+    <div class="lg:sticky lg:top-0 lg:z-50 lg:bg-[#f0f9ff] lg:pt-6 lg:-mt-6">
+     <!-- Header -->
+     <div class="dashboard-header mb-2">
+      <h1 class="text-xl md:text-3xl font-bold">Pusat Informasi</h1>
+      <p class="text-white text-opacity-80 text-sm md:text-base">Informasi lengkap tentang pembelajaran Hidrokarbon</p>
+     </div><!-- Tab Navigation - Responsive Scroll -->
+     <div class="bg-white rounded-t-2xl shadow-md overflow-x-auto scrollbar-hide">
+      <div class="flex border-b-2 border-gray-200 min-w-max lg:w-full lg:justify-center"><button class="tab-button active px-4 md:px-6 py-3 md:py-4 text-sm md:text-base font-semibold text-blue-600 bg-blue-50 border-b-4 border-blue-600 whitespace-nowrap transition-all" data-tab="cp"> Capaian Pembelajaran </button> <button class="tab-button px-4 md:px-6 py-3 md:py-4 text-sm md:text-base font-semibold text-gray-500 border-b-4 border-transparent hover:text-gray-700 hover:bg-gray-50 whitespace-nowrap transition-all" data-tab="tp"> Tujuan Pembelajaran </button> <button class="tab-button px-4 md:px-6 py-3 md:py-4 text-sm md:text-base font-semibold text-gray-500 border-b-4 border-transparent hover:text-gray-700 hover:bg-gray-50 whitespace-nowrap transition-all" data-tab="petunjuk"> Petunjuk Penggunaan </button> <button class="tab-button px-4 md:px-6 py-3 md:py-4 text-sm md:text-base font-semibold text-gray-500 border-b-4 border-transparent hover:text-gray-700 hover:bg-gray-50 whitespace-nowrap transition-all" data-tab="profil"> Profil Pengembang </button>
+      </div>
+     </div>
+    </div><!-- Tab Content -->
+    <div class="bg-white rounded-b-2xl shadow-md p-4 md:p-6 mb-6"><!-- CP Tab -->
+     <div id="cpTab" class="tab-content">
+      <h2 class="text-xl md:text-2xl font-bold text-gray-800 mb-6 flex items-center"><span class="bg-gradient-to-r from-blue-500 to-cyan-400 text-white px-3 py-1 md:px-4 md:py-2 rounded-lg mr-3 text-sm md:text-base">CP</span> Capaian Pembelajaran Fase F</h2>
+      <div class="bg-gradient-to-br from-blue-50 via-cyan-50 to-blue-50 p-4 md:p-6 rounded-xl shadow-md mb-6 border-l-4 border-blue-500">
+       <p class="text-gray-700 leading-relaxed text-justify text-sm md:text-base">Pada akhir fase F, peserta didik memiliki kemampuan untuk menganalisis hubungan struktur atom dengan sistem periodik unsur; membandingkan jenis ikatan kimia serta kaitannya dengan bentuk molekul dan gaya intermolekuler dalam memprediksi sifat fisik materi; mengaitkan perubahan entalpi standar dari suatu reaksi kimia dengan sumber energi yang ada di lingkungan sekitar; menganalisis faktor-faktor yang mempengaruhi laju reaksi; menganalisis kesetimbangan kimia dan penerapannya; menjelaskan daya hantar listrik dan sifat koligatif larutan; menjelaskan sel elektrokimia dalam kehidupan sehari-hari; dan <span class="bg-yellow-200 font-semibold px-2 py-1 rounded">menjelaskan senyawa karbon</span> dan makromolekul.</p>
+      </div>
+      <div class="bg-white border-2 border-blue-200 rounded-xl p-4 md:p-6 shadow-sm">
+       <div class="flex items-center mb-4">
+        <div class="bg-gradient-to-r from-blue-500 to-cyan-400 p-2 md:p-3 rounded-lg mr-3">
+         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 md:h-6 md:w-6 text-white" fill="none" viewbox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+         </svg>
+        </div>
+        <h3 class="text-lg md:text-xl font-bold text-gray-800">Fokus Pembelajaran Hidrokarbon</h3>
+       </div>
+       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="bg-gradient-to-br from-blue-50 to-white p-4 rounded-lg border border-blue-100 hover:shadow-md transition-shadow">
+         <div class="flex items-start"><span class="text-xl md:text-2xl mr-3">⚛️</span>
+          <div>
+           <h4 class="font-semibold text-gray-800 mb-1 text-sm md:text-base">Kekhasan Atom Karbon</h4>
+           <p class="text-xs md:text-sm text-gray-600">Memahami struktur unik atom karbon sebagai penyusun senyawa hidrokarbon</p>
+          </div>
+         </div>
+        </div>
+        <div class="bg-gradient-to-br from-cyan-50 to-white p-4 rounded-lg border border-cyan-100 hover:shadow-md transition-shadow">
+         <div class="flex items-start"><span class="text-xl md:text-2xl mr-3">📊</span>
+          <div>
+           <h4 class="font-semibold text-gray-800 mb-1 text-sm md:text-base">Klasifikasi Hidrokarbon</h4>
+           <p class="text-xs md:text-sm text-gray-600">Menggolongkan senyawa berdasarkan kejenuhan ikatan dan bentuk rantai karbon</p>
+          </div>
+         </div>
+        </div>
+        <div class="bg-gradient-to-br from-purple-50 to-white p-4 rounded-lg border border-purple-100 hover:shadow-md transition-shadow">
+         <div class="flex items-start"><span class="text-xl md:text-2xl mr-3">✏️</span>
+          <div>
+           <h4 class="font-semibold text-gray-800 mb-1 text-sm md:text-base">Tata Nama IUPAC</h4>
+           <p class="text-xs md:text-sm text-gray-600">Menerapkan aturan IUPAC untuk menamai struktur senyawa rantai lurus maupun bercabang</p>
+          </div>
+         </div>
+        </div>
+        <div class="bg-gradient-to-br from-pink-50 to-white p-4 rounded-lg border border-pink-100 hover:shadow-md transition-shadow">
+         <div class="flex items-start"><span class="text-xl md:text-2xl mr-3">🔄</span>
+          <div>
+           <h4 class="font-semibold text-gray-800 mb-1 text-sm md:text-base">Isomer Hidrokarbon</h4>
+           <p class="text-xs md:text-sm text-gray-600">Menganalisis berbagai bentuk isomer dalam senyawa hidrokarbon</p>
+          </div>
+         </div>
+        </div>
+        <div class="bg-gradient-to-br from-yellow-50 to-white p-4 rounded-lg border border-yellow-100 hover:shadow-md transition-shadow">
+         <div class="flex items-start"><span class="text-xl md:text-2xl mr-3">⚗️</span>
+          <div>
+           <h4 class="font-semibold text-gray-800 mb-1 text-sm md:text-base">Sifat Hidrokarbon</h4>
+           <p class="text-xs md:text-sm text-gray-600">Menjelaskan karakteristik fisik serta reaksi kimia, seperti pembakaran, adisi, dan polimerisasi</p>
+          </div>
+         </div>
+        </div>
+        <div class="bg-gradient-to-br from-green-50 to-white p-4 rounded-lg border border-green-100 hover:shadow-md transition-shadow">
+         <div class="flex items-start"><span class="text-xl md:text-2xl mr-3">🌍</span>
+          <div>
+           <h4 class="font-semibold text-gray-800 mb-1 text-sm md:text-base">Konteks SSI</h4>
+           <p class="text-xs md:text-sm text-gray-600">Mengkaji penerapan hidrokarbon dalam konteks isu-isu sosio-sains (SSI)</p>
+          </div>
+         </div>
+        </div>
+       </div>
+      </div>
+     </div><!-- TP Tab -->
+     <div id="tpTab" class="tab-content hidden">
+      <h2 class="text-xl font-bold text-gray-800 mb-4">Tujuan Pembelajaran (TP)</h2>
+      <div class="space-y-3">
+       <div class="flex items-start bg-gradient-to-r from-blue-50 to-white p-4 rounded-lg">
+        <div class="flex-shrink-0 w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center font-bold mr-3 text-sm md:text-base">
+         1
+        </div>
+        <p class="text-gray-700 text-sm md:text-base">Peserta didik mampu menganalisis kekhasan atom karbon serta menggolongkan senyawa hidrokarbon berdasarkan kejenuhan ikatan dan bentuk rantai karbon.</p>
+       </div>
+       <div class="flex items-start bg-gradient-to-r from-blue-50 to-white p-4 rounded-lg">
+        <div class="flex-shrink-0 w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center font-bold mr-3 text-sm md:text-base">
+         2
+        </div>
+        <p class="text-gray-700 text-sm md:text-base">Peserta didik mampu menerapkan aturan tata nama IUPAC dan menganalisis keisomeran pada senyawa hidrokarbon.</p>
+       </div>
+       <div class="flex items-start bg-gradient-to-r from-blue-50 to-white p-4 rounded-lg">
+        <div class="flex-shrink-0 w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center font-bold mr-3 text-sm md:text-base">
+         3
+        </div>
+        <p class="text-gray-700 text-sm md:text-base">Peserta didik mampu memprediksi sifat fisik dan reaksi kimia pada senyawa hidrokarbon.</p>
+       </div>
+       <div class="flex items-start bg-gradient-to-r from-blue-50 to-white p-4 rounded-lg">
+        <div class="flex-shrink-0 w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center font-bold mr-3 text-sm md:text-base">
+         4
+        </div>
+        <p class="text-gray-700 text-sm md:text-base">Peserta didik mampu mengevaluasi penerapan hidrokarbon dalam konteks isu-isu sosio-sains (SSI).</p>
+       </div>
+      </div>
+     </div><!-- Petunjuk Tab -->
+     <div id="petunjukTab" class="tab-content hidden">
+      <h2 class="text-xl font-bold text-gray-800 mb-4">Petunjuk Penggunaan</h2>
+      <div class="space-y-4 text-gray-700 text-sm md:text-base">
+       <div class="bg-yellow-50 p-4 rounded-lg">
+        <h3 class="font-semibold text-gray-800 mb-2 flex items-center">
+         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-yellow-500" fill="none" viewbox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+         </svg> Navigasi Umum</h3>
+        <ul class="list-disc list-inside space-y-1 ml-7">
+         <li>Gunakan tombol <strong>Home</strong>
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline-block" fill="none" viewbox="0 0 24 24" stroke="currentColor">
+           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+          </svg> untuk kembali ke menu utama</li>
+         <li>Klik pada menu yang tersedia untuk mengakses konten pembelajaran</li>
+        </ul>
+       </div><!-- Alur Belajar Box (New) -->
+       <div class="bg-orange-50 p-4 rounded-lg border-l-4 border-orange-400 ml-4 md:ml-8">
+        <h3 class="font-semibold text-gray-800 mb-2 flex items-center"><span class="mr-2 text-xl">🗺️</span> Alur Belajar</h3>
+        <p class="mb-2 text-gray-700">Agar pemahamanmu utuh, ikuti langkah berikut:</p>
+        <ol class="list-decimal list-inside space-y-1 ml-2 text-gray-700">
+         <li><strong>Pusat Informasi:</strong> Pahami Petunjuk & Tujuan Pembelajaran.</li>
+         <li><strong>Zona Eksplorasi:</strong> Pelajari 4 materi inti secara urut.</li>
+         <li><strong>Game Edukatif:</strong> Refreshing sambil asah ingatan.</li>
+         <li><strong>Zona Evaluasi:</strong> Ukur kemampuanmu di akhir.</li>
+        </ol>
+       </div>
+       <div class="bg-green-50 p-4 rounded-lg">
+        <h3 class="font-semibold text-gray-800 mb-2 flex items-center">
+         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-green-500" fill="none" viewbox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+         </svg> Pusat Informasi</h3>
+        <p class="ml-7">Akses informasi kurikulum (CP & TP), petunjuk penggunaan, dan profil pengembang dalam satu tempat. Klik <strong>"Lihat Detail"</strong> untuk informasi lengkap.</p>
+       </div>
+       <div class="bg-blue-50 p-4 rounded-lg">
+        <h3 class="font-semibold text-gray-800 mb-2 flex items-center">
+         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-blue-500" fill="none" viewbox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+         </svg> Zona Eksplorasi</h3>
+        <div class="ml-7 text-gray-700">
+         <p class="mb-3">Pelajari materi inti hidrokarbon dan isu sosial-saintifik terkait. Klik <strong>"Mulai Investigasi"</strong> untuk memulai pembelajaran interaktif secara bertahap:</p>
+         
+         <div class="my-3">
+          <div class="bg-yellow-300 text-gray-900 px-3 py-2 rounded-lg font-medium shadow-sm transform -rotate-1 inline-flex flex-wrap items-center gap-x-2 gap-y-1 text-sm md:text-base leading-snug">
+           <span class="whitespace-nowrap">[Mengenal Hidrokarbon]</span>
+           <span class="font-black text-lg">→</span>
+           <span class="whitespace-nowrap">[Alkana]</span>
+           <span class="font-black text-lg">→</span>
+           <span class="whitespace-nowrap">[Alkena]</span>
+           <span class="font-black text-lg">→</span>
+           <span class="whitespace-nowrap">[Alkuna]</span>
+          </div>
+         </div>
+
+         <p class="text-amber-600 font-semibold text-sm mb-3">⚠️ Pastikan paham satu materi sebelum lanjut!</p>
+         
+         <div class="bg-white p-3 rounded-lg border border-blue-200 text-sm shadow-sm">
+          <p class="font-bold text-blue-800 mb-1 flex items-center">
+           <span class="mr-2 text-base">↔️</span> Navigasi Halaman Materi
+          </p>
+          <p class="text-gray-600">Di setiap akhir halaman sub-materi, gunakan tombol navigasi biru di pojok bawah (&lt; Kembali atau Lanjut &gt;) untuk berpindah halaman.</p>
+         </div>
+
+         <div class="bg-white p-3 rounded-lg border border-blue-200 text-sm shadow-sm mt-3">
+          <p class="font-bold text-blue-800 mb-1 flex items-center">
+           <span class="mr-2 text-base">📑</span> Menu Sidebar
+          </p>
+          <p class="text-gray-600">Terdapat <strong>sidebar</strong> (daftar isi) di sisi layar yang bisa kamu gunakan untuk melihat struktur keseluruhan materi dan melompat ke bagian sub-materi tertentu dengan cepat.</p>
+         </div>
+        </div>
+       </div>
+       <div class="bg-purple-50 p-4 rounded-lg">
+        <h3 class="font-semibold text-gray-800 mb-2 flex items-center">
+         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-purple-500" fill="none" viewbox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+         </svg> Game Edukatif</h3>
+        <p class="ml-7">Belajar sambil bermain dengan game edukatif tentang hidrokarbon. Klik <strong>"Mainkan Game"</strong> untuk memulai.</p>
+       </div>
+       <div class="bg-yellow-50 p-4 rounded-lg">
+        <h3 class="font-semibold text-gray-800 mb-2 flex items-center">
+         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-yellow-500" fill="none" viewbox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+         </svg> Zona Evaluasi</h3>
+        <p class="ml-7">Uji pemahaman Anda dengan soal-soal interaktif. Klik <strong>"Uji Kemampuan"</strong> dan dapatkan umpan balik langsung.</p>
+       </div>
+      </div>
+     </div><!-- Profil Tab -->
+     <div id="profilTab" class="tab-content hidden">
+      <div class="relative overflow-hidden"><!-- Decorative background -->
+       <div class="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-blue-100 to-cyan-100 rounded-full opacity-30 -mr-48 -mt-48"></div>
+       <div class="absolute bottom-0 left-0 w-72 h-72 bg-gradient-to-tr from-blue-50 to-purple-50 rounded-full opacity-40 -ml-32 -mb-32"></div>
+       <div class="relative z-10"><!-- Main Profile Card -->
+        <div class="bg-gradient-to-br from-blue-600 via-blue-500 to-cyan-400 rounded-3xl p-6 md:p-12 text-white mb-8 shadow-2xl overflow-hidden relative"><!-- Decorative molecules in background -->
+         <svg class="absolute top-4 right-8 opacity-10 w-24 h-24 md:w-32 md:h-32" viewbox="0 0 100 100"><circle cx="50" cy="50" r="15" fill="#fff" /> <circle cx="50" cy="20" r="10" fill="#fff" /> <circle cx="20" cy="50" r="10" fill="#fff" /> <circle cx="80" cy="50" r="10" fill="#fff" /> <circle cx="50" cy="80" r="10" fill="#fff" /> <line x1="50" y1="35" x2="50" y2="20" stroke="#fff" stroke-width="2" /> <line x1="35" y1="50" x2="20" y2="50" stroke="#fff" stroke-width="2" /> <line x1="65" y1="50" x2="80" y2="50" stroke="#fff" stroke-width="2" /> <line x1="50" y1="65" x2="50" y2="80" stroke="#fff" stroke-width="2" />
+         </svg>
+         <!-- UBAH DI SINI: Menggunakan flex untuk pusatkan konten -->
+         <div class="flex flex-col md:flex-row gap-6 md:gap-10 items-center justify-center"><!-- Avatar Section -->
+          <div class="flex justify-center flex-shrink-0">
+           <div class="relative">
+            <div class="absolute inset-0 bg-white opacity-20 rounded-full blur-xl"></div>
+            <div class="relative w-32 h-32 md:w-40 md:h-40 bg-gradient-to-br from-white via-cyan-100 to-blue-100 rounded-full flex items-center justify-center shadow-2xl border-4 border-white border-opacity-30 badge-glow overflow-hidden">
+             <img src="https://github.com/auliaputriindah06-crypto/mpihidrokarbon/blob/main/WhatsApp%20Image%202026-02-01%20at%2010.29.59.jpeg?raw=true" alt="Indah Aulia Putri" class="w-full h-full object-cover" style="object-position: 50% 20%;">
+            </div>
+            <div class="absolute -bottom-2 -right-2 bg-yellow-400 text-blue-600 rounded-full p-2 md:p-3 shadow-lg animate-bounce">
+             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 md:h-6 md:w-6" fill="currentColor" viewbox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
+             </svg>
+            </div>
+           </div>
+          </div><!-- Main Info Section -->
+          <div class="text-center md:text-left">
+           <h2 class="text-3xl md:text-5xl font-black mb-2 leading-tight">Indah Aulia Putri</h2>
+           <div class="h-1 w-24 bg-yellow-300 rounded-full mb-6 mx-auto md:mx-0"></div>
+           <div class="space-y-3 mb-6 text-left">
+            <div class="flex items-center gap-3 text-base md:text-lg">
+             <div class="bg-white bg-opacity-30 p-2 rounded-lg shrink-0">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="currentColor" viewbox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+              </svg>
+             </div><span class="break-words">NIM: <strong>22303241045</strong></span>
+            </div>
+            <div class="flex items-center gap-3 text-base md:text-lg">
+             <div class="bg-white bg-opacity-30 p-2 rounded-lg shrink-0">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="currentColor" viewbox="0 0 24 24"><path d="M5 13.18v4c0 .62.38 1.16.97 1.41L12 21.95l6.03-3.36c.59-.25.97-.79.97-1.41v-4M12 6.04L6.97 9.63C6.38 9.88 6 10.42 6 11.04v4c0 .62.38 1.16.97 1.41L12 21.95v-15.91m0-4.04L5.63 4.81c-.59.25-.63.94.04 1.24l6.33 3.54 6.33-3.54c.67-.3.63-.99.04-1.24L12 2z" />
+              </svg>
+             </div><span class="break-words">Program Studi: <strong>Pendidikan Kimia</strong></span>
+            </div>
+            <div class="flex items-center gap-3 text-base md:text-lg">
+             <div class="bg-white bg-opacity-30 p-2 rounded-lg shrink-0">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="currentColor" viewbox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm3.5-9c.83 0 1.5-.67 1.5-1.5S16.33 8 15.5 8 14 8.67 14 9.5s.67 1.5 1.5 1.5zm-7 0c.83 0 1.5-.67 1.5-1.5S9.33 8 8.5 8 7 8.67 7 9.5 7.67 11 8.5 11zm3.5 6.5c2.33 0 4.31-1.46 5.11-3.5H6.89c.8 2.04 2.78 3.5 5.11 3.5z" />
+              </svg>
+             </div><span class="break-words">Kampus: <strong>Universitas Negeri Yogyakarta</strong></span>
+            </div>
+           </div>
+           <p class="text-white text-opacity-90 italic text-sm md:text-base">“Belajar kimia itu bukan tentang menghafal rumus, tapi memahami bagaimana alam semesta bekerja.”</p>
+          </div>
+         </div>
+        </div><!-- Responsive Mentor & Contact Section -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-8 mb-8">
+         <!-- Box Dosen Pembimbing -->
+         <div class="bg-gradient-to-br from-purple-50 to-pink-50 rounded-2xl p-5 md:p-8 border-2 border-purple-200 shadow-lg hover:shadow-xl transition-all card-lift flex flex-col justify-center">
+          <div class="flex items-center gap-4 mb-3">
+           <div class="bg-gradient-to-br from-purple-500 to-pink-500 p-3 rounded-xl shadow-md flex-shrink-0">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 lg:h-8 lg:w-8 text-white" fill="none" viewbox="0 0 24 24" stroke="currentColor">
+             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+            </svg>
+           </div>
+           <div>
+            <h3 class="text-lg lg:text-xl font-bold text-gray-800 leading-tight">Dosen Pembimbing</h3>
+            <p class="text-xs lg:text-sm text-gray-500 uppercase tracking-wider font-semibold">Mentor &amp; Advisor</p>
+           </div>
+          </div>
+          <div class="mt-2">
+           <p class="text-xl lg:text-2xl font-black bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-1">Prof. Jaslin Ikhsan</p>
+           <p class="text-gray-600 font-medium text-sm lg:text-base">M.Appl.Sc., Ph.D.</p>
+          </div>
+         </div>
+         <!-- Box Contact Person -->
+         <div class="bg-gradient-to-br from-green-50 to-emerald-50 rounded-2xl p-5 md:p-8 border-2 border-green-200 shadow-lg hover:shadow-xl transition-all card-lift flex flex-col justify-center">
+          <div class="flex items-center gap-4 mb-3">
+           <div class="bg-gradient-to-br from-green-500 to-emerald-500 p-3 rounded-xl shadow-md flex-shrink-0">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 lg:h-8 lg:w-8 text-white" fill="none" viewbox="0 0 24 24" stroke="currentColor">
+             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+            </svg>
+           </div>
+           <div>
+            <h3 class="text-lg lg:text-xl font-bold text-gray-800 leading-tight">Contact Person</h3>
+            <p class="text-xs lg:text-sm text-gray-500 uppercase tracking-wider font-semibold">Hubungi Pengembang</p>
+           </div>
+          </div>
+          <div class="mt-2">
+           <p class="text-sm md:text-lg font-bold text-green-700 break-all leading-snug">indah0117fmipa.2022@student.uny.ac.id</p>
+          </div>
+         </div>
+        </div>
+       </div>
+      </div>
+     </div>
+    </div>
+   </div>
+  </div><!-- Dashboard/Main Menu Page -->
+  <div id="dashboardPage" class="dashboard hidden">
+   <div class="container mx-auto max-w-7xl"><!-- Header with Welcome Message -->
+    <div class="dashboard-header">
+     <div class="flex items-center justify-between">
+      <div class="flex-grow">
+       <div class="flex items-center gap-2 mb-1">
+        <h1 class="text-xl md:text-3xl font-bold" id="welcomeMessage">Hai, Peserta Didik!</h1>
+       </div>
+       <p class="text-white text-opacity-90 text-base md:text-lg mb-1" id="timeGreeting">Selamat Pagi ☀️</p>
+       <p class="text-white text-opacity-80 text-sm md:text-base" id="schoolInfo">Selamat datang di Multimedia Pembelajaran Hidrokarbon</p>
+      </div>
+      <div class="hidden md:flex flex-col items-end gap-3">
+       <!-- Molecule Icon -->
+       <svg width="60" height="60" viewbox="0 0 100 100"><circle cx="50" cy="50" r="15" fill="#fff" /> <!-- Carbon --> <circle cx="50" cy="20" r="10" fill="#a5f3fc" /> <!-- H top --> <circle cx="20" cy="50" r="10" fill="#a5f3fc" /> <!-- H left --> <circle cx="80" cy="50" r="10" fill="#a5f3fc" /> <!-- H right --> <circle cx="50" cy="80" r="10" fill="#a5f3fc" /> <!-- H bottom --> <line x1="50" y1="35" x2="50" y2="20" stroke="#fff" stroke-width="2" /> <!-- Bond top --> <line x1="35" y1="50" x2="20" y2="50" stroke="#fff" stroke-width="2" /> <!-- Bond left --> <line x1="65" y1="50" x2="80" y2="50" stroke="#fff" stroke-width="2" /> <!-- Bond right --> <line x1="50" y1="65" x2="50" y2="80" stroke="#fff" stroke-width="2" /> <!-- Bond bottom -->
+       </svg>
+      </div>
+     </div>
+    </div><!-- Menu Grid --> <!-- Zona Eksplorasi Card - Large -->
+    <div class="mb-6">
+     <div class="menu-card bg-gradient-to-br from-blue-50 to-cyan-50 border-2 border-blue-200">
+      <div class="flex flex-col md:flex-row items-center gap-6">
+       <div class="menu-icon w-20 h-20 bg-blue-100 shrink-0">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 md:h-12 md:w-12 text-blue-500" fill="none" viewbox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+        </svg>
+       </div>
+       <div class="flex-grow text-center md:text-left">
+        <h3 class="text-xl md:text-2xl font-bold text-gray-800">Zona Eksplorasi</h3>
+        <p class="text-gray-600 mt-2 text-base md:text-lg">Dari energi yang kita gunakan hingga material yang kita pakai, Hidrokarbon ada di mana-mana. Mari telusuri jejak senyawanya dan dampaknya bagi bumi</p><a href="eksplorasi.html" class="mt-4 px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors text-base md:text-lg font-semibold cursor-pointer w-full md:w-auto active:scale-95 inline-block no-underline"> Mulai Investigasi </a>
+       </div>
+      </div>
+     </div>
+    </div><!-- Other Menu Cards - Small Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6"><!-- Pusat Informasi Card -->
+     <div class="menu-card h-full flex flex-col items-center md:items-start text-center md:text-left">
+      <div class="menu-icon">
+       <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-green-500" fill="none" viewbox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+       </svg>
+      </div>
+      <h3 class="text-lg font-semibold text-gray-800">Pusat Informasi</h3>
+      <p class="text-gray-600 mt-2 flex-grow text-sm md:text-base">Akses capaian pembelajaran, tujuan pembelajaran, petunjuk penggunaan, dan profil pengembang</p><button id="pusatInfoButton" class="mt-4 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors w-full md:w-auto active:scale-95"> Lihat Detail </button>
+     </div><!-- Game Edukatif Card -->
+     <div class="menu-card h-full flex flex-col items-center md:items-start text-center md:text-left">
+      <div class="menu-icon">
+       <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-purple-500" fill="none" viewbox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" /> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+       </svg>
+      </div>
+      <h3 class="text-lg font-semibold text-gray-800">Game Edukatif</h3>
+      <p class="text-gray-600 mt-2 flex-grow text-sm md:text-base">Bermain sambil belajar dengan game seru tentang hidrokarbon</p>
+      <a href="game.html" class="mt-4 px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-colors w-full md:w-auto active:scale-95 inline-block text-center font-semibold no-underline"> Mainkan Game </a>
+     </div><!-- Zona Evaluasi Card -->
+     <div class="menu-card h-full flex flex-col items-center md:items-start text-center md:text-left">
+      <div class="menu-icon">
+       <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-yellow-500" fill="none" viewbox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+       </svg>
+      </div>
+      <h3 class="text-lg font-semibold text-gray-800">Zona Evaluasi</h3>
+      <p class="text-gray-600 mt-2 flex-grow text-sm md:text-base">Uji pemahamanmu melalui soal interaktif dan dapatkan umpan balik otomatis</p>
+      <a href="evaluasi.html" class="mt-4 px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition-colors w-full md:w-auto active:scale-95 inline-block text-center font-semibold no-underline"> Uji Kemampuan </a>
+     </div>
+    </div>
+   </div>
+  </div><!-- Link Edit Modal -->
+  <div id="linkEditModal" class="link-edit-modal">
+   <div class="link-edit-content">
+    <h3 class="text-lg md:text-xl font-semibold text-gray-800 mb-4">Edit Link <span id="linkName"></span></h3>
+    <div class="mb-4"><label for="linkUrl" class="block text-gray-700 mb-2 text-sm md:text-base">URL Tujuan:</label> <input type="text" id="linkUrl" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm md:text-base" placeholder="https://example.com">
+    </div>
+    <div class="flex justify-end space-x-3"><button id="cancelLinkEdit" class="px-3 py-2 md:px-4 md:py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition-colors text-sm md:text-base"> Batal </button> <button id="saveLinkEdit" class="px-3 py-2 md:px-4 md:py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors text-sm md:text-base"> Simpan </button>
+    </div>
+   </div>
+  </div>
+  <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get all page elements
+            const objectivesPage = document.getElementById('objectivesPage');
+            const dashboardPage = document.getElementById('dashboardPage');
+            const pusatInfoPage = document.getElementById('pusatInfoPage');
+            
+            // Get navigation buttons
+            const homeButton = document.getElementById('homeButton');
+            
+            // Get interactive elements
+            const lanjutkanButton = document.getElementById('lanjutkanButton');
+            const objectivesGreeting = document.getElementById('objectivesGreeting');
+            
+            // Link editing elements
+            const linkEditModal = document.getElementById('linkEditModal');
+            const linkNameElement = document.getElementById('linkName');
+            const linkUrlInput = document.getElementById('linkUrl');
+            const cancelLinkEdit = document.getElementById('cancelLinkEdit');
+            const saveLinkEdit = document.getElementById('saveLinkEdit');
+            let currentEditingButton = null;
+            
+            // Store page navigation history
+            let pageHistory = [];
+            let currentPage = null;
+            
+            // Initial state: Show Dashboard Page immediately
+            dashboardPage.style.display = 'block';
+            
+            // Hide other pages
+            objectivesPage.style.display = 'none';
+            pusatInfoPage.style.display = 'none';
+            
+            // Function to get time-based greeting
+            function getTimeGreeting() {
+                const hour = new Date().getHours();
+                
+                if (hour >= 4 && hour < 11) {
+                    return 'Selamat Pagi ☀️';
+                } else if (hour >= 11 && hour < 15) {
+                    return 'Selamat Siang 🌤️';
+                } else if (hour >= 15 && hour < 18.5) {
+                    return 'Selamat Sore 🌥️';
+                } else {
+                    return 'Selamat Malam 🌙';
+                }
+            }
+            
+            // Update time greeting on load
+            const timeGreeting = document.getElementById('timeGreeting');
+            if (timeGreeting) {
+                timeGreeting.textContent = getTimeGreeting();
+            }
+            
+            // Function to show a page and update navigation history
+            function showPage(page) {
+                // Hide all pages
+                objectivesPage.style.display = 'none';
+                dashboardPage.style.display = 'none';
+                pusatInfoPage.style.display = 'none';
+                
+                // Show the requested page
+                page.style.display = 'block';
+                
+                // Update navigation history
+                if (currentPage && currentPage !== page) {
+                    pageHistory.push(currentPage);
+                }
+                currentPage = page;
+                
+                // Update navigation buttons visibility
+                updateNavigationButtons();
+
+                // PERBAIKAN: Reset scroll ke paling atas setiap ganti halaman
+                window.scrollTo(0, 0);
+            }
+            
+            // Function to update navigation buttons visibility
+            function updateNavigationButtons() {
+                if (currentPage !== dashboardPage) {
+                    homeButton.classList.remove('hidden');
+                } else {
+                    homeButton.classList.add('hidden');
+                }
+            }
+
+            // Lanjutkan button on objectives page
+            lanjutkanButton.addEventListener('click', function() {
+                showPage(dashboardPage);
+            });
+            
+            // Home button functionality
+            homeButton.addEventListener('click', function() {
+                // Clear history and go to dashboard
+                pageHistory = [];
+                showPage(dashboardPage);
+            });
+            
+            // Pusat Informasi button functionality
+            const pusatInfoButton = document.getElementById('pusatInfoButton');
+            pusatInfoButton.addEventListener('click', function() {
+                showPage(pusatInfoPage);
+            });
+            
+            // Tab switching functionality
+            const tabButtons = document.querySelectorAll('.tab-button');
+            const tabContents = document.querySelectorAll('.tab-content');
+            
+            tabButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const targetTab = this.getAttribute('data-tab');
+                    
+                    // Remove active class from all buttons
+                    tabButtons.forEach(btn => {
+                        btn.classList.remove('active', 'text-blue-600', 'bg-blue-50', 'border-blue-600');
+                        btn.classList.add('text-gray-500', 'border-transparent');
+                    });
+                    
+                    // Add active class to clicked button
+                    this.classList.add('active', 'text-blue-600', 'bg-blue-50', 'border-blue-600');
+                    this.classList.remove('text-gray-500', 'border-transparent');
+                    
+                    // Hide all tab contents
+                    tabContents.forEach(content => {
+                        content.classList.add('hidden');
+                    });
+                    
+                    // Show target tab content
+                    if (targetTab === 'cp') {
+                        document.getElementById('cpTab').classList.remove('hidden');
+                    } else if (targetTab === 'tp') {
+                        document.getElementById('tpTab').classList.remove('hidden');
+                    } else if (targetTab === 'petunjuk') {
+                        document.getElementById('petunjukTab').classList.remove('hidden');
+                    } else if (targetTab === 'profil') {
+                        document.getElementById('profilTab').classList.remove('hidden');
+                    }
+                });
+            });
+            
+            // Editable links functionality
+            document.querySelectorAll('.editable-link').forEach(button => {
+                // Initialize with default URLs from localStorage or empty
+                const linkId = button.getAttribute('data-link-id');
+                const savedUrl = localStorage.getItem(linkId);
+                if (savedUrl) {
+                    button.setAttribute('data-url', savedUrl);
+                } else {
+                    button.setAttribute('data-url', '');
+                }
+                
+                // Add click event for navigation
+                button.addEventListener('click', function(e) {
+                    const url = this.getAttribute('data-url');
+                    if (url && url.trim() !== '') {
+                        window.open(url, '_blank');
+                    } else {
+                        // If no URL is set, open the edit modal
+                        openLinkEditModal(this);
+                    }
+                });
+                
+                // Add right-click event for editing
+                button.addEventListener('contextmenu', function(e) {
+                    e.preventDefault();
+                    openLinkEditModal(this);
+                });
+            });
+            
+            // Function to open link edit modal
+            function openLinkEditModal(button) {
+                currentEditingButton = button;
+                const linkName = button.getAttribute('data-link-name');
+                const currentUrl = button.getAttribute('data-url') || '';
+                
+                linkNameElement.textContent = linkName;
+                linkUrlInput.value = currentUrl;
+                
+                linkEditModal.classList.add('active');
+            }
+            
+            // Cancel link edit
+            cancelLinkEdit.addEventListener('click', function() {
+                linkEditModal.classList.remove('active');
+                currentEditingButton = null;
+            });
+            
+            // Save link edit
+            saveLinkEdit.addEventListener('click', function() {
+                if (currentEditingButton) {
+                    const newUrl = linkUrlInput.value.trim();
+                    const linkId = currentEditingButton.getAttribute('data-link-id');
+                    
+                    // Save to button and localStorage
+                    currentEditingButton.setAttribute('data-url', newUrl);
+                    localStorage.setItem(linkId, newUrl);
+                    
+                    // Close modal
+                    linkEditModal.classList.remove('active');
+                    currentEditingButton = null;
+                    
+                    // Show confirmation
+                    alert('Link berhasil disimpan!');
+                }
+            });
+            
+            // Close modal when clicking outside
+            linkEditModal.addEventListener('click', function(e) {
+                if (e.target === linkEditModal) {
+                    linkEditModal.classList.remove('active');
+                    currentEditingButton = null;
+                }
+            });
+            
+            // Add keyboard shortcut for modal (Escape to close)
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && linkEditModal.classList.contains('active')) {
+                    linkEditModal.classList.remove('active');
+                    currentEditingButton = null;
+                }
+            });
+        });
+    </script>
+ </body>
+</html>

@@ -1,0 +1,1835 @@
+<!doctype html>
+<html lang="id" class="h-full">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Game Zone | Hidrokarbon 🎮</title>
+  <link rel="icon" href="favicon.png" type="image/png">
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- UPDATED FONT: Replaced Rajdhani with Exo 2 for better legibility (Double-storey 'a') -->
+  <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@400;500;600;700;800&family=Orbitron:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    body {
+      box-sizing: border-box;
+      overscroll-behavior: none; /* Prevent pull-to-refresh on mobile */
+      touch-action: manipulation; /* Improve touch response */
+    }
+    
+    * {
+      /* CHANGED: Using Exo 2 for better readability of 'a' vs 'o' */
+      font-family: 'Exo 2', sans-serif;
+      user-select: none; /* Prevent text selection during game */
+      -webkit-tap-highlight-color: transparent; /* Remove tap highlight on mobile */
+    }
+    
+    .font-orbitron {
+      font-family: 'Orbitron', monospace;
+    }
+    
+    /* Custom Scrollbar for Modals */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: rgba(0, 20, 40, 0.5); 
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #00ffff; 
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #0ea5e9; 
+    }
+    
+    @keyframes pulse-glow {
+      0%, 100% { box-shadow: 0 0 20px rgba(0, 255, 255, 0.5), 0 0 40px rgba(0, 255, 255, 0.3); }
+      50% { box-shadow: 0 0 30px rgba(0, 255, 255, 0.8), 0 0 60px rgba(0, 255, 255, 0.5); }
+    }
+    
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-10px); }
+    }
+    
+    @keyframes star-twinkle {
+      0%, 100% { opacity: 0.3; }
+      50% { opacity: 1; }
+    }
+    
+    @keyframes meteor-fall {
+      0% { transform: translateY(-100px) rotate(15deg); opacity: 1; }
+      100% { transform: translateY(800px) rotate(15deg); opacity: 0.5; }
+    }
+    
+    @keyframes rocket-hover {
+      0%, 100% { transform: translateY(0) rotate(-2deg); }
+      50% { transform: translateY(-5px) rotate(2deg); }
+    }
+    
+    @keyframes laser-shoot {
+      0% { opacity: 0; height: 0; }
+      20% { opacity: 1; height: 100%; }
+      80% { opacity: 1; height: 100%; }
+      100% { opacity: 0; height: 100%; }
+    }
+    
+    @keyframes laser-pulse {
+      0%, 100% { box-shadow: 0 0 10px rgba(0, 255, 255, 0.8), 0 0 20px rgba(0, 255, 255, 0.5); }
+      50% { box-shadow: 0 0 20px rgba(0, 255, 255, 1), 0 0 40px rgba(0, 255, 255, 0.8), 0 0 60px rgba(0, 255, 255, 0.5); }
+    }
+    
+    .laser-shooting {
+      animation: laser-shoot 0.4s ease-out, laser-pulse 0.1s ease-in-out infinite;
+    }
+    
+    @keyframes bullet-shoot {
+      0% { transform: translateY(0) scale(1); opacity: 1; }
+      100% { transform: translateY(var(--bullet-distance)) scale(0.5); opacity: 0; }
+    }
+    
+    @keyframes particle-burst {
+      0% { transform: translate(0, 0) scale(1); opacity: 1; }
+      100% { transform: translate(var(--tx), var(--ty)) scale(0); opacity: 0; }
+    }
+
+    /* Efek Serpihan Batu (Shards) */
+    .shard {
+      position: absolute;
+      background: linear-gradient(135deg, #1a1a2e 0%, #2d2d55 100%);
+      border: 1px solid #e94560;
+      box-shadow: 0 0 4px rgba(233, 69, 96, 0.8);
+      z-index: 25;
+      pointer-events: none;
+      clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%); /* Bentuk wajik/pecahan */
+    }
+    
+    @keyframes shard-fly {
+      0% { transform: translate(0, 0) rotate(0deg) scale(1); opacity: 1; }
+      100% { transform: translate(var(--tx), var(--ty)) rotate(var(--rot)) scale(0); opacity: 0; }
+    }
+
+    /* Floating Points Animation */
+    @keyframes float-up-fade {
+      0% { transform: translate(-50%, -50%) translateY(0) scale(1); opacity: 1; }
+      100% { transform: translate(-50%, -50%) translateY(-60px) scale(1.5); opacity: 0; }
+    }
+
+    .floating-points {
+      position: absolute;
+      font-family: 'Orbitron', sans-serif;
+      font-weight: 900;
+      color: #facc15; /* Kuning Emas */
+      font-size: 2rem;
+      pointer-events: none;
+      z-index: 60; /* Di atas segalanya */
+      text-shadow: 0 0 15px rgba(250, 204, 21, 0.8), 2px 2px 0px rgba(0,0,0,0.8);
+      white-space: nowrap;
+      animation: float-up-fade 0.8s ease-out forwards;
+    }
+
+    /* Animasi Nyawa Berdenyut (Peringatan Bahaya) */
+    @keyframes urgent-pulse {
+      0% { transform: scale(1); text-shadow: none; filter: grayscale(0); }
+      50% { transform: scale(1.3); text-shadow: 0 0 15px #ff0000, 0 0 30px #ef4444; color: #ff0000; }
+      100% { transform: scale(1); text-shadow: none; filter: grayscale(0); }
+    }
+
+    .animate-urgent {
+      animation: urgent-pulse 0.6s ease-in-out infinite;
+      display: inline-block; /* Agar transform berfungsi dengan baik */
+    }
+    
+    /* Efek Getar (Shake) */
+    @keyframes shake {
+      0%, 100% { transform: translate(0, 0); }
+      10%, 30%, 50%, 70%, 90% { transform: translate(-4px, 1px); }
+      20%, 40%, 60%, 80% { transform: translate(4px, -1px); }
+    }
+
+    .shake {
+      animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both;
+    }
+
+    .bullet {
+      position: absolute;
+      width: 8px;
+      height: 16px;
+      background: linear-gradient(180deg, #00ffff, #0ea5e9, #fff);
+      border-radius: 50% 50% 0 0;
+      box-shadow: 0 0 15px rgba(0, 255, 255, 1), 0 0 30px rgba(0, 255, 255, 0.7);
+      z-index: 15;
+      pointer-events: none;
+    }
+    
+    .bullet::after {
+      content: '';
+      position: absolute;
+      bottom: -8px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 0;
+      height: 0;
+      border-left: 4px solid transparent;
+      border-right: 4px solid transparent;
+      border-top: 8px solid #0ea5e9;
+      filter: blur(1px);
+      opacity: 0.7;
+    }
+    
+    .explosion-particle {
+      position: absolute;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 20;
+    }
+    
+    @keyframes explosion {
+      0% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.5); opacity: 0.8; }
+      100% { transform: scale(2); opacity: 0; }
+    }
+    
+    @keyframes scan-line {
+      0% { top: 0; }
+      100% { top: 100%; }
+    }
+    
+    .animate-pulse-glow {
+      animation: pulse-glow 2s ease-in-out infinite;
+    }
+    
+    .animate-float {
+      animation: float 3s ease-in-out infinite;
+    }
+    
+    .animate-rocket {
+      animation: rocket-hover 2s ease-in-out infinite;
+    }
+    
+    .star {
+      position: absolute;
+      background: white;
+      border-radius: 50%;
+      animation: star-twinkle 2s ease-in-out infinite;
+    }
+    
+    .meteor {
+      position: absolute;
+      width: 4px;
+      height: 80px;
+      background: linear-gradient(to bottom, rgba(0, 255, 255, 0.8), transparent);
+      animation: meteor-fall 3s linear infinite;
+      border-radius: 2px;
+    }
+    
+    .scan-line {
+      position: absolute;
+      width: 100%;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, rgba(0, 255, 255, 0.3), transparent);
+      animation: scan-line 4s linear infinite;
+      pointer-events: none;
+    }
+    
+    .hexagon-bg {
+      background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 0l25.98 15v30L30 60 4.02 45V15z' fill='none' stroke='%2300ffff' stroke-opacity='0.1'/%3E%3C/svg%3E");
+      background-size: 60px 60px;
+    }
+    
+    .neon-border {
+      border: 2px solid #00ffff;
+      box-shadow: 0 0 10px rgba(0, 255, 255, 0.5), inset 0 0 10px rgba(0, 255, 255, 0.1);
+    }
+    
+    .glass-effect {
+      background: rgba(0, 20, 40, 0.85);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(0, 255, 255, 0.3);
+    }
+    
+    .alien-rock {
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+      border: 2px solid #e94560;
+      box-shadow: 0 0 15px rgba(233, 69, 96, 0.5), inset 0 0 20px rgba(233, 69, 96, 0.2);
+      clip-path: polygon(50% 0%, 85% 15%, 100% 50%, 85% 85%, 50% 100%, 15% 85%, 0% 50%, 15% 15%);
+    }
+    
+    .rocket-flame {
+      background: linear-gradient(to bottom, #ff6b35, #f7c59f, transparent);
+      filter: blur(2px);
+      animation: flame-flicker 0.1s ease-in-out infinite alternate;
+    }
+    
+    @keyframes flame-flicker {
+      0% { height: 20px; opacity: 0.8; }
+      100% { height: 25px; opacity: 1; }
+    }
+    
+    .correct-flash {
+      animation: correct-pulse 0.5s ease-out;
+    }
+    
+    @keyframes correct-pulse {
+      0% { background-color: rgba(34, 197, 94, 0.5); }
+      100% { background-color: transparent; }
+    }
+    
+    .wrong-flash {
+      animation: wrong-pulse 0.5s ease-out;
+    }
+    
+    @keyframes wrong-pulse {
+      0% { background-color: rgba(239, 68, 68, 0.5); }
+      100% { background-color: transparent; }
+    }
+    
+    .progress-bar {
+      background: linear-gradient(90deg, #00ffff, #0ea5e9, #8b5cf6);
+      background-size: 200% 100%;
+      animation: gradient-shift 2s ease infinite;
+    }
+    
+    @keyframes gradient-shift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    
+    .btn-futuristic {
+      background: linear-gradient(135deg, rgba(0, 255, 255, 0.2), rgba(139, 92, 246, 0.2));
+      border: 2px solid #00ffff;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .btn-futuristic:active {
+      transform: translateY(1px); /* Touch feedback */
+      box-shadow: 0 0 5px rgba(0, 255, 255, 0.5);
+    }
+    
+    @media (hover: hover) {
+      .btn-futuristic:hover {
+        background: linear-gradient(135deg, rgba(0, 255, 255, 0.4), rgba(139, 92, 246, 0.4));
+        box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
+        transform: translateY(-2px);
+      }
+      .btn-futuristic:hover::before {
+        left: 100%;
+      }
+    }
+    
+    .btn-futuristic::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transition: left 0.5s ease;
+    }
+
+    /* --- New Animations for Background Floaters --- */
+    .bg-floater {
+      position: absolute;
+      pointer-events: none; /* Crucial: clicks pass through */
+      z-index: 5; /* Behind rocks (z-20) but above stars */
+      opacity: 0.5;
+      filter: drop-shadow(0 0 5px rgba(0, 255, 255, 0.2));
+    }
+
+    @keyframes float-horizontal-right {
+      0% { transform: translateX(-100px) rotate(-10deg); left: 0; }
+      100% { transform: translateX(calc(100vw + 100px)) rotate(10deg); left: 0; }
+    }
+    
+    @keyframes float-horizontal-left {
+      0% { transform: translateX(calc(100vw + 100px)) rotate(10deg); left: 0; }
+      100% { transform: translateX(-100px) rotate(-10deg); left: 0; }
+    }
+    
+    /* Short screen adaptation (Landscape Mobile) */
+    @media (max-height: 500px) and (orientation: landscape) {
+        #game-title { font-size: 2rem !important; margin-bottom: 0 !important; }
+        .rocket-logo { width: 50px !important; height: 50px !important; margin-top: 10px !important; }
+        .menu-container { gap: 8px !important; }
+        .menu-btn { padding-top: 8px !important; padding-bottom: 8px !important; font-size: 0.9rem !important; }
+        #answer-panel { padding: 4px !important; }
+        #answer-panel button { padding: 8px !important; min-height: 36px !important; font-size: 0.8rem !important; }
+        #question-text { margin-bottom: 4px !important; font-size: 0.9rem !important; }
+    }
+
+    /* --- FIX FOR LAPTOPS/DESKTOPS WITH LIMITED HEIGHT --- */
+    @media (min-width: 768px) and (max-height: 900px) {
+        #dashboard-screen .relative.z-10 {
+            padding-top: 0.5rem !important;
+            padding-bottom: 0.5rem !important;
+        }
+        #game-title {
+            font-size: 3rem !important; 
+            margin-bottom: 0.25rem !important;
+            line-height: 1.1;
+        }
+        #game-title + h2 {
+            font-size: 1.25rem !important;
+            margin-bottom: 0 !important;
+        }
+        .rocket-logo {
+            margin-top: 0.5rem !important;
+        }
+        .rocket-logo svg {
+            width: 4.5rem !important;
+            height: 4.5rem !important;
+        }
+        .menu-container {
+            gap: 0.5rem !important;
+        }
+        .menu-btn {
+            padding-top: 0.6rem !important;
+            padding-bottom: 0.6rem !important;
+            font-size: 1rem !important;
+        }
+        #stats-box {
+            margin-top: 1rem !important;
+            padding: 0.5rem !important;
+        }
+        #high-score-display {
+            font-size: 1.5rem !important;
+        }
+    }
+  </style>
+  <style>@view-transition { navigation: auto; }</style>
+ </head>
+ <body class="h-full m-0 p-0 overflow-auto bg-gray-900 selection:bg-cyan-500/30 selection:text-white">
+  <div id="app" class="w-full h-full relative flex flex-col">
+    
+   <!-- Music Toggle (Global - Dashboard Only) -->
+   <button id="music-toggle" onclick="toggleMusic()" class="dashboard-only fixed top-3 right-3 sm:top-4 sm:right-4 z-[60] btn-futuristic p-2 sm:p-3 rounded-lg text-cyan-400 active:scale-95 transition-transform shadow-lg shadow-cyan-500/20 bg-black/50 backdrop-blur-sm" aria-label="Toggle Music">
+      <span class="music-icon-display text-xl sm:text-2xl">🔇</span>
+   </button>
+
+   <!-- Fullscreen Toggle (Global - Dashboard Only) -->
+   <button id="fullscreen-toggle" onclick="toggleFullScreen()" class="dashboard-only fixed top-3 right-16 sm:top-4 sm:right-24 z-[60] btn-futuristic p-2 sm:p-3 rounded-lg text-cyan-400 active:scale-95 transition-transform shadow-lg shadow-cyan-500/20 bg-black/50 backdrop-blur-sm mr-2" aria-label="Toggle Fullscreen">
+      <span class="fullscreen-icon-display text-xl sm:text-2xl">⛶</span>
+   </button>
+
+   <!-- Dashboard Screen -->
+   <div id="dashboard-screen" class="w-full h-full flex flex-col items-center justify-center relative overflow-hidden hexagon-bg" style="background: linear-gradient(135deg, #0a0a1a 0%, #1a1a3e 50%, #0f0f2e 100%);">
+    
+    <!-- Home Button (Dashboard) -->
+    <a href="dashboard.html" class="absolute top-3 left-3 sm:top-4 sm:left-4 z-20 btn-futuristic p-2 sm:p-3 rounded-lg text-cyan-400 active:scale-95 transition-transform shadow-lg shadow-cyan-500/20 flex items-center justify-center decoration-none" aria-label="Kembali ke Dashboard">
+        <span class="text-xl sm:text-2xl">🏠</span>
+    </a>
+
+    <!-- Animated Stars -->
+    <div id="stars-container" class="absolute inset-0 pointer-events-none overflow-hidden"></div>
+    
+    <!-- Meteors -->
+    <div class="meteor" style="left: 10%; animation-delay: 0s;"></div>
+    <div class="meteor" style="left: 30%; animation-delay: 1s;"></div>
+    <div class="meteor" style="left: 70%; animation-delay: 2s;"></div>
+    <div class="meteor" style="left: 90%; animation-delay: 0.5s;"></div>
+    
+    <!-- Scan Line -->
+    <div class="scan-line"></div>
+    
+    <!-- Main Content -->
+    <div class="relative z-10 flex flex-col items-center px-4 py-4 sm:py-6 w-full max-w-4xl mx-auto h-full justify-center">
+      
+      <!-- Logo/Title -->
+      <div class="text-center mb-4 sm:mb-8 md:mb-10 animate-float">
+       <div class="relative">
+        <h1 id="game-title" class="font-orbitron text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-500 mb-1 sm:mb-2 tracking-wide">HYDROCARBON</h1>
+        <h2 class="font-orbitron text-lg sm:text-2xl md:text-4xl font-bold text-cyan-400 tracking-[0.2em] sm:tracking-[0.3em]">GAME ZONE</h2>
+        <div class="absolute -inset-4 bg-gradient-to-r from-cyan-500/20 to-purple-500/20 blur-xl -z-10 rounded-full"></div>
+       </div>
+       
+       <!-- Rocket Icon -->
+       <div class="rocket-logo mt-4 sm:mt-8 flex justify-center">
+        <svg class="w-16 h-16 sm:w-24 sm:h-24 md:w-32 md:h-32 animate-rocket" viewbox="0 0 100 100"><defs>
+          <lineargradient id="rocketGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+           <stop offset="0%" style="stop-color:#00ffff" />
+           <stop offset="100%" style="stop-color:#8b5cf6" />
+          </lineargradient>
+         </defs> <path d="M50 10 L60 40 L55 40 L55 70 L60 70 L50 90 L40 70 L45 70 L45 40 L40 40 Z" fill="url(#rocketGrad)" stroke="#00ffff" stroke-width="2" /> <circle cx="50" cy="35" r="5" fill="#0a0a1a" stroke="#00ffff" /> <path d="M35 55 L40 50 L40 65 L35 60 Z" fill="#e94560" /> <path d="M65 55 L60 50 L60 65 L65 60 Z" fill="#e94560" /> <ellipse cx="50" cy="92" rx="8" ry="12" fill="url(#flameGrad)" opacity="0.8">
+          <animate attributename="ry" values="12;15;12" dur="0.2s" repeatcount="indefinite" />
+         </ellipse> <defs>
+          <lineargradient id="flameGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+           <stop offset="0%" style="stop-color:#ff6b35" />
+           <stop offset="50%" style="stop-color:#f7c59f" />
+           <stop offset="100%" style="stop-color:transparent" />
+          </lineargradient>
+         </defs>
+        </svg>
+       </div>
+      </div>
+      
+      <!-- Menu Buttons -->
+      <div class="menu-container flex flex-col gap-3 sm:gap-4 w-full max-w-[260px] sm:max-w-xs md:max-w-sm">
+       <button id="start-btn" onclick="startGame()" class="menu-btn btn-futuristic font-orbitron text-base sm:text-xl font-bold text-cyan-400 py-3 sm:py-4 px-6 rounded-lg animate-pulse-glow active:scale-95 transition-transform"> 
+        🚀 MULAI MISI 
+       </button> 
+       <button onclick="showInstructions()" class="menu-btn btn-futuristic font-orbitron text-xs sm:text-base font-semibold text-cyan-300 py-3 px-4 rounded-lg active:scale-95 transition-transform"> 
+        📋 PETUNJUK BERMAIN 
+       </button> 
+       <button onclick="showHistory()" class="menu-btn btn-futuristic font-orbitron text-xs sm:text-base font-semibold text-cyan-300 py-3 px-4 rounded-lg active:scale-95 transition-transform"> 
+        📊 RIWAYAT &amp; PEMBAHASAN 
+       </button>
+      </div>
+      
+      <!-- Stats Preview -->
+      <div id="stats-box" class="mt-4 sm:mt-8 glass-effect rounded-xl p-3 sm:p-4 w-full max-w-[260px] sm:max-w-xs">
+       <div class="flex justify-between items-center text-cyan-400 font-semibold text-xs sm:text-base">
+        <span>🏆 Skor Tertinggi</span> 
+        <span id="high-score-display" class="font-orbitron text-lg sm:text-2xl text-yellow-400">0</span>
+       </div>
+      </div>
+    </div>
+   </div>
+   
+   <!-- Instructions Modal -->
+   <div id="instructions-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/90 backdrop-blur-sm">
+    <div class="glass-effect rounded-xl sm:rounded-2xl p-5 sm:p-6 max-w-lg w-full max-h-[85vh] overflow-y-auto neon-border flex flex-col">
+      <div class="flex items-center justify-center mb-4 sticky top-0 bg-[#0a0a1a]/80 backdrop-blur-md py-2 -mt-2 z-10 relative">
+       <h3 class="font-orbitron text-xl sm:text-2xl font-bold text-cyan-400 text-center w-full">📋 PETUNJUK</h3>
+       <button onclick="closeInstructions()" class="absolute right-0 top-1/2 transform -translate-y-1/2 text-cyan-400 hover:text-cyan-300 text-3xl leading-none p-2">&times;</button>
+      </div>
+      <div class="space-y-4 text-gray-200 text-sm sm:text-base">
+       <div class="flex gap-3 items-start p-2 rounded-lg bg-white/5"><span class="text-2xl flex-shrink-0">🎯</span>
+        <p><strong class="text-cyan-400">Tujuan:</strong> Tembak batu alien yang jatuh dengan menjawab soal hidrokarbon dengan benar!</p>
+       </div>
+       <div class="flex gap-3 items-start p-2 rounded-lg bg-white/5"><span class="text-2xl flex-shrink-0">👆</span>
+        <p><strong class="text-cyan-400">Cara Bermain:</strong> Klik batu alien yang jatuh untuk memilih target. Roket akan mengikuti batu tersebut.</p>
+       </div>
+       <div class="flex gap-3 items-start p-2 rounded-lg bg-white/5"><span class="text-2xl flex-shrink-0">✅</span>
+        <p><strong class="text-cyan-400">Menjawab:</strong> Pilih jawaban yang benar dari pilihan ganda. Jawaban benar = <span class="text-green-400">+10 poin!</span></p>
+       </div>
+       <div class="flex gap-3 items-start p-2 rounded-lg bg-white/5"><span class="text-2xl flex-shrink-0">❌</span>
+        <p><strong class="text-cyan-400">Hati-hati:</strong> Jawaban salah = <span class="text-red-400">-5 poin</span>. Batu jatuh = <span class="text-red-400">-2 poin & -1 Nyawa!</span></p>
+       </div>
+       <div class="flex gap-3 items-start p-2 rounded-lg bg-white/5"><span class="text-2xl flex-shrink-0">❤️</span>
+        <p><strong class="text-cyan-400">Nyawa:</strong> Kamu punya 3 nyawa. Jika habis, permainan berakhir!</p>
+       </div>
+       <div class="flex gap-3 items-start p-2 rounded-lg bg-white/5"><span class="text-2xl flex-shrink-0">⏱️</span>
+        <p><strong class="text-cyan-400">Waktu:</strong> Kamu punya 100 detik untuk mendapatkan skor setinggi mungkin!</p>
+       </div>
+       <div class="flex gap-3 items-start p-2 rounded-lg bg-white/5"><span class="text-2xl flex-shrink-0">📚</span>
+        <p><strong class="text-cyan-400">Materi:</strong> Soal tentang hidrokarbon - mengenal senyawa hidrokarbon, alkana, alkena, dan alkuna.</p>
+       </div>
+      </div>
+      <div class="mt-6 sticky bottom-0 bg-[#0a0a1a]/80 backdrop-blur-md py-2 -mb-2 z-10">
+        <button onclick="closeInstructions()" class="btn-futuristic w-full py-3 rounded-lg font-orbitron font-bold text-cyan-400 text-base active:scale-95 transition-transform"> MENGERTI! 👍 </button>
+      </div>
+    </div>
+   </div>
+   
+   <!-- History Modal -->
+   <div id="history-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/90 backdrop-blur-sm">
+    <div class="glass-effect rounded-xl sm:rounded-2xl p-5 sm:p-6 max-w-2xl w-full max-h-[85vh] overflow-hidden flex flex-col neon-border">
+      <div class="flex justify-between items-center mb-4 shrink-0">
+       <h3 class="font-orbitron text-lg sm:text-xl md:text-2xl font-bold text-cyan-400">📊 RIWAYAT</h3>
+       <button onclick="closeHistory()" class="text-cyan-400 hover:text-cyan-300 text-3xl leading-none p-2">&times;</button>
+      </div>
+      <div id="history-content" class="space-y-3 overflow-y-auto pr-1 flex-1">
+       <p class="text-gray-400 text-center py-10 text-sm sm:text-base">Belum ada riwayat permainan.</p>
+      </div>
+      <div class="mt-4 pt-2 shrink-0">
+        <button onclick="closeHistory()" class="btn-futuristic w-full py-3 rounded-lg font-orbitron font-bold text-cyan-400 text-sm sm:text-base active:scale-95 transition-transform"> TUTUP </button>
+      </div>
+    </div>
+   </div>
+   
+   <!-- Game Screen -->
+   <div id="game-screen" class="w-full h-full hidden flex-col relative overflow-hidden" style="background: linear-gradient(180deg, #0a0a1a 0%, #1a1a3e 50%, #0f0f2e 100%);">
+    
+    <!-- Game Stars Background -->
+    <div id="game-stars" class="absolute inset-0 pointer-events-none"></div>
+
+    <!-- Background Objects Container -->
+    <div id="background-objects" class="absolute inset-0 pointer-events-none overflow-hidden z-0"></div>
+    
+    <!-- HUD -->
+    <div id="game-hud" class="relative z-40 px-2 py-2 sm:px-4 sm:py-3 flex justify-between items-center glass-effect border-b border-cyan-500/30 shrink-0">
+      <button onclick="goHome()" class="btn-futuristic px-2 py-1.5 sm:px-3 sm:py-2 rounded-lg font-orbitron text-xs sm:text-sm text-cyan-400 flex items-center gap-1 active:scale-95 transition-transform"> 
+        <span class="text-base sm:text-lg">🔙</span> <span class="hidden sm:inline">KEMBALI</span> 
+      </button>
+      
+      <div class="flex gap-1 sm:gap-6 items-center bg-black/20 px-2 py-1 sm:px-4 rounded-full border border-cyan-500/20">
+       <div class="text-center">
+        <div class="text-[9px] sm:text-xs text-cyan-400 font-semibold tracking-wider">SKOR</div>
+        <div id="score" class="font-orbitron text-lg sm:text-2xl text-yellow-400 font-bold leading-none">0</div>
+       </div>
+       <div class="w-px h-6 sm:h-8 bg-cyan-500/30"></div>
+       <div class="text-center">
+        <div class="text-[9px] sm:text-xs text-cyan-400 font-semibold tracking-wider">NYAWA</div>
+        <div id="lives" class="font-orbitron text-lg sm:text-2xl text-red-500 font-bold leading-none tracking-widest">❤️❤️❤️</div>
+       </div>
+       <div class="w-px h-6 sm:h-8 bg-cyan-500/30"></div>
+       <div class="text-center">
+        <div class="text-[9px] sm:text-xs text-cyan-400 font-semibold tracking-wider">WAKTU</div>
+        <div id="timer" class="font-orbitron text-lg sm:text-2xl text-red-400 font-bold leading-none">100</div>
+       </div>
+      </div>
+      
+      <!-- Right Side Controls -->
+      <div class="flex items-center gap-1 sm:gap-2">
+          <!-- Music (HUD) -->
+          <button onclick="toggleMusic()" class="btn-futuristic px-2 py-1.5 sm:px-3 sm:py-2 rounded-lg font-orbitron text-xs sm:text-sm text-cyan-400 active:scale-95 transition-transform" title="Musik">
+            <span class="music-icon-display text-base sm:text-lg">🔇</span>
+          </button>
+          <!-- Fullscreen (HUD) -->
+          <button onclick="toggleFullScreen()" class="btn-futuristic px-2 py-1.5 sm:px-3 sm:py-2 rounded-lg font-orbitron text-xs sm:text-sm text-cyan-400 active:scale-95 transition-transform" title="Layar Penuh">
+            <span class="fullscreen-icon-display text-base sm:text-lg">⛶</span>
+          </button>
+          <!-- History -->
+          <button onclick="showHistory()" class="btn-futuristic px-2 py-1.5 sm:px-3 sm:py-2 rounded-lg font-orbitron text-xs sm:text-sm text-cyan-400 active:scale-95 transition-transform" title="Riwayat"> 
+           <span class="text-base sm:text-lg">📊</span>
+          </button>
+      </div>
+    </div>
+    
+    <!-- Game Area -->
+    <div id="game-area" class="flex-1 relative overflow-hidden w-full max-w-5xl mx-auto touch-none min-h-0">
+      <!-- Falling Rocks Container -->
+      <div id="rocks-container" class="absolute inset-0 pointer-events-none"></div>
+      
+      <!-- Rocket -->
+      <div id="rocket" class="absolute bottom-4 sm:bottom-16 left-1/2 transform -translate-x-1/2 transition-all duration-300 z-10 pointer-events-none">
+       <svg class="w-16 h-20 sm:w-24 sm:h-28" viewbox="0 0 60 80"><defs>
+          <lineargradient id="rocketBodyGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+           <stop offset="0%" style="stop-color:#00ffff" />
+           <stop offset="50%" style="stop-color:#0ea5e9" />
+           <stop offset="100%" style="stop-color:#8b5cf6" />
+          </lineargradient>
+         </defs> <path d="M30 0 L42 25 L38 25 L38 55 L44 55 L30 75 L16 55 L22 55 L22 25 L18 25 Z" fill="url(#rocketBodyGrad)" stroke="#00ffff" stroke-width="1.5" /> <circle cx="30" cy="22" r="6" fill="#0a0a1a" stroke="#00ffff" stroke-width="1" /> <circle cx="30" cy="22" r="3" fill="#00ffff" opacity="0.5" /> <path d="M14 42 L18 35 L18 52 L14 48 Z" fill="#e94560" /> <path d="M46 42 L42 35 L42 52 L46 48 Z" fill="#e94560" /> <ellipse id="rocket-flame" cx="30" cy="78" rx="6" ry="10" fill="url(#flameGrad2)" opacity="0.9">
+          <animate attributename="ry" values="10;14;10" dur="0.15s" repeatcount="indefinite" />
+          <animate attributename="opacity" values="0.9;1;0.9" dur="0.1s" repeatcount="indefinite" />
+         </ellipse> <defs>
+          <lineargradient id="flameGrad2" x1="0%" y1="0%" x2="0%" y2="100%">
+           <stop offset="0%" style="stop-color:#ff6b35" />
+           <stop offset="40%" style="stop-color:#ffcc00" />
+           <stop offset="100%" style="stop-color:transparent" />
+          </lineargradient>
+         </defs>
+        </svg>
+       </div>
+      </div>
+      
+      <!-- Laser beam -->
+      <div id="laser-beam" class="absolute hidden w-2 bg-gradient-to-b from-cyan-400 via-cyan-300 to-transparent z-5 rounded-full pointer-events-none"></div>
+    </div>
+    
+    <!-- Answer Panel -->
+    <div id="answer-panel" class="relative z-50 glass-effect border-t border-cyan-500/30 p-2 sm:p-4 hidden shrink-0 shadow-[0_-5px_20px_rgba(0,0,0,0.5)]">
+      <div class="max-w-4xl mx-auto w-full">
+        <div id="question-text" class="text-cyan-300 font-semibold text-center mb-2 sm:mb-3 text-xs sm:text-base md:text-lg px-2 leading-tight"></div>
+        <div id="options-container" class="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3 w-full"></div>
+      </div>
+    </div>
+   </div>
+   
+   <!-- Game Over Modal -->
+   <div id="gameover-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/95 backdrop-blur-sm">
+    <div class="glass-effect rounded-xl sm:rounded-2xl p-6 sm:p-8 max-w-md w-full text-center neon-border animate-float">
+      <h2 class="font-orbitron text-2xl sm:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-500 mb-4 sm:mb-6">MISI SELESAI!</h2>
+      
+      <div class="glass-effect rounded-xl p-4 mb-4 sm:mb-6 border border-cyan-500/20">
+       <div class="text-cyan-400 text-xs sm:text-sm font-semibold tracking-widest mb-1">SKOR AKHIR</div>
+       <div id="final-score" class="font-orbitron text-4xl sm:text-6xl text-yellow-400 font-black filter drop-shadow-[0_0_10px_rgba(250,204,21,0.5)]">0</div>
+      </div>
+      
+      <div class="grid grid-cols-2 gap-3 mb-4 sm:mb-6">
+       <div class="glass-effect rounded-lg p-3 border border-green-500/20">
+        <div class="text-green-400 text-[10px] sm:text-xs font-semibold">BENAR</div>
+        <div id="correct-count" class="font-orbitron text-xl sm:text-3xl text-green-400 font-bold">0</div>
+       </div>
+       <div class="glass-effect rounded-lg p-3 border border-red-500/20">
+        <div class="text-red-400 text-[10px] sm:text-xs font-semibold">SALAH</div>
+        <div id="wrong-count" class="font-orbitron text-xl sm:text-3xl text-red-400 font-bold">0</div>
+       </div>
+      </div>
+      
+      <div class="flex flex-col gap-3">
+       <button onclick="startGame()" class="btn-futuristic py-3 rounded-lg font-orbitron font-bold text-cyan-400 text-sm sm:text-lg animate-pulse-glow active:scale-95 transition-transform"> 
+        🔄 MAIN LAGI 
+       </button> 
+       <button onclick="showHistoryFromGameOver()" class="btn-futuristic py-3 rounded-lg font-orbitron font-bold text-cyan-300 text-xs sm:text-base active:scale-95 transition-transform"> 
+        📊 LIHAT PEMBAHASAN 
+       </button> 
+       <button onclick="goHomeFromGameOver()" class="btn-futuristic py-3 rounded-lg font-orbitron font-bold text-cyan-300 text-xs sm:text-base active:scale-95 transition-transform"> 
+        🏠 KEMBALI KE HOME 
+       </button>
+      </div>
+    </div>
+   </div>
+  </div>
+  <script>
+    // Config
+    const defaultConfig = {
+      game_title: "HYDROCARBON",
+      start_button_text: "🚀 MULAI MISI"
+    };
+    
+    let config = { ...defaultConfig };
+    
+    // Load high score from local storage
+    const storedHighScore = localStorage.getItem('hydrocarbon_highscore') || 0;
+
+    // Game State
+    let gameState = {
+      score: 0,
+      lives: 3,
+      timeLeft: 100,
+      isPlaying: false,
+      selectedRock: null,
+      rocks: [],
+      history: [],
+      questionPool: [], 
+      correctCount: 0,
+      wrongCount: 0,
+      highScore: parseInt(storedHighScore), 
+      timerInterval: null,
+      gameLoop: null,
+      shootingInterval: null,
+      fromGameOver: false, 
+      backgroundObjectsInterval: null 
+    };
+    
+    // Hydrocarbon Questions
+    const questions = [
+      { q: "Senyawa dengan rumus molekul sama tapi struktur beda disebut?", options: ["Isomer", "Polimer", "Monomer", "Homolog"], answer: 0, explanation: "Isomer adalah senyawa yang memiliki rumus molekul sama tetapi struktur berbeda, sehingga memiliki sifat fisika dan kimia yang berbeda." },
+      { q: "Zat pencemar berbahaya hasil pembakaran tidak sempurna?", options: ["CO₂", "H₂O", "CO", "O₂"], answer: 2, explanation: "Karbon monoksida (CO) adalah gas beracun yang dihasilkan dari pembakaran tidak sempurna hidrokarbon karena kekurangan oksigen." },
+      { q: "Ukuran kualitas bensin ditentukan oleh bilangan...?", options: ["Atom", "Massa", "Oktan", "Mol"], answer: 2, explanation: "Bilangan oktan menunjukkan kualitas bensin dalam mencegah knocking (ketukan mesin). Semakin tinggi bilangan oktan, semakin baik kualitas bensin." },
+      { q: "Rumus molekul Propena", options: ["C₃H₈", "C₃H₆", "C₃H₄", "C₂H₄"], answer: 1, explanation: "Propena (C₃H₆) adalah alkena dengan 3 atom karbon, mengikuti rumus umum alkena CnH₂n." },
+      { q: "Sampah plastik sulit terurai karena rantai karbonnya sangat?", options: ["Pendek", "Panjang", "Bercabang", "Jenuh"], answer: 1, explanation: "Plastik memiliki rantai karbon yang sangat panjang (polimer) sehingga sangat sulit diurai oleh mikroorganisme dan membutuhkan waktu ratusan tahun." },
+      { q: "Senyawa Alkena alami yang berfungsi mempercepat kematangan buah?", options: ["Metana", "Etena", "Propena", "Butena"], answer: 1, explanation: "Etena (etilena/C₂H₄) adalah hormon tumbuhan alami yang mempercepat proses pematangan buah." },
+      { q: "Reaksi penggabungan molekul kecil menjadi polimer?", options: ["Adisi", "Substitusi", "Polimerisasi", "Eliminasi"], answer: 2, explanation: "Polimerisasi adalah reaksi penggabungan banyak molekul kecil (monomer) menjadi molekul besar (polimer) seperti pembentukan plastik." },
+      { q: "Gugus alkil bercabang 3 karbon (-CH(CH₃)₂) disebut?", options: ["Propil", "Isopropil", "Butil", "Isobutil"], answer: 1, explanation: "Isopropil adalah gugus alkil bercabang dengan 3 atom karbon dengan struktur -CH(CH₃)₂." },
+      { q: "Limbah deterjen sulit terurai (ABS) karena memiliki rantai karbon?", options: ["Lurus", "Bercabang", "Pendek", "Jenuh"], answer: 1, explanation: "ABS (Alkyl Benzene Sulfonate) bercabang sulit diurai mikroorganisme. Deterjen modern menggunakan LAS (Linear) yang lebih mudah terurai." },
+      { q: "Nama C₂H₂", options: ["Etana", "Etena", "Etuna", "Metana"], answer: 2, explanation: "C₂H₂ adalah etuna (asetilena), alkuna paling sederhana dengan ikatan rangkap tiga, digunakan dalam las karbit." },
+      { q: "Reaksi pemutusan ikatan rangkap menjadi tunggal?", options: ["Substitusi", "Adisi", "Eliminasi", "Polimerisasi"], answer: 1, explanation: "Reaksi adisi adalah reaksi di mana ikatan rangkap (C=C atau C≡C) diputus dan atom-atom baru ditambahkan, mengubahnya menjadi ikatan tunggal." },
+      { q: "Plastik pembungkus makanan terbuat dari polimer...?", options: ["PVC", "Polietena", "PET", "Polistirena"], answer: 1, explanation: "Polietena (polietilena/PE) adalah polimer dari etena yang banyak digunakan sebagai plastik pembungkus makanan karena fleksibel dan aman." },
+      { q: "Deret senyawa dengan selisih -CH₂- disebut deret...?", options: ["Isomer", "Polimer", "Homolog", "Isotop"], answer: 2, explanation: "Deret homolog adalah senyawa sejenis yang berbeda satu sama lain dengan selisih -CH₂- (contoh: metana, etana, propana)." },
+      { q: "Nama lain C₈H₁₄", options: ["Oktana", "Oktena", "Oktuna", "Oktadiena"], answer: 2, explanation: "C₈H₁₄ mengikuti rumus CnH₂n-2 yang merupakan ciri alkuna, sehingga namanya oktuna (8 atom karbon dengan ikatan rangkap tiga)." },
+      { q: "Nama lain dari golongan Alkena (pembentuk minyak)?", options: ["Parafin", "Olefin", "Asetilena", "Aromatik"], answer: 1, explanation: "Olefin adalah nama lain untuk alkena, yang berarti 'pembentuk minyak' karena bereaksi dengan halogen membentuk senyawa berminyak." },
+      { q: "Senyawa hidrokarbon lurus (C₇) yang nilai oktannya nol?", options: ["Heksana", "Heptana", "Oktana", "Nonana"], answer: 1, explanation: "n-Heptana (C₇H₁₆) memiliki bilangan oktan 0 dan digunakan sebagai standar terendah dalam pengukuran bilangan oktan bensin." },
+      { q: "Sifat hidrokarbon: sukar larut dalam air, artinya bersifat?", options: ["Polar", "Nonpolar", "Kovalen", "Ionik"], answer: 1, explanation: "Hidrokarbon bersifat nonpolar, sehingga tidak larut dalam pelarut polar seperti air, tetapi larut dalam pelarut nonpolar lainnya seperti bensin." },
+      { q: "Salah satu gas penyebab efek rumah kaca?", options: ["O₂", "N₂", "CO₂", "H₂"], answer: 2, explanation: "CO₂ (karbon dioksida) dari pembakaran hidrokarbon adalah salah satu gas rumah kaca utama yang menyebabkan pemanasan global." },
+      { q: "Zat aditif bensin lawas yang berbahaya (mengandung Pb)?", options: ["MTBE", "Etanol", "TEL", "TBA"], answer: 2, explanation: "TEL (Tetra Ethyl Lead) adalah zat aditif bensin berbahaya yang mengandung timbal (Pb), kini sudah dilarang karena mencemari lingkungan." },
+      { q: "Titik didih Alkana akan ... seiring bertambahnya atom C?", options: ["Naik", "Turun", "Tetap", "Acak"], answer: 0, explanation: "Titik didih alkana meningkat seiring bertambahnya jumlah atom C karena massa molekul dan gaya van der Waals yang lebih besar." },
+      { q: "Zat aditif peningkat oktan pengganti timbal (TEL) yang lebih aman?", options: ["Benzen", "MTBE", "Aseton", "Metanol"], answer: 1, explanation: "MTBE (Methyl Tertiary Butyl Ether) adalah zat aditif ramah lingkungan pengganti TEL untuk meningkatkan bilangan oktan bensin." },
+      { q: "Perbedaan kelarutan senyawa organik dan senyawa anorganik?", options: ["Organik larut air", "Anorganik larut air", "Sama saja", "Tidak ada"], answer: 1, explanation: "Senyawa anorganik umumnya larut dalam air (polar), sedangkan senyawa organik (hidrokarbon) umumnya larut dalam pelarut nonpolar." },
+      { q: "Isomer rantai terjadi karena perbedaan bentuk...?", options: ["Gugus fungsi", "Kerangka karbon", "Ikatan rangkap", "Atom C"], answer: 1, explanation: "Isomer rantai (isomer kerangka) terjadi karena perbedaan susunan kerangka/rantai karbon (lurus vs bercabang)." },
+      { q: "Senyawa aromatik paling sederhana (C₆H₆)?", options: ["Toluena", "Benzena", "Fenol", "Stirena"], answer: 1, explanation: "Benzena (C₆H₆) adalah senyawa aromatik paling sederhana dengan struktur cincin 6 karbon yang memiliki ikatan rangkap terkonjugasi." },
+      { q: "Komponen utama LPG yang merupakan hidrokarbon C₃ adalah?", options: ["Metana", "Etana", "Propana", "Butana"], answer: 2, explanation: "Propana (C₃H₈) adalah komponen utama LPG (Liquefied Petroleum Gas) bersama butana, digunakan sebagai bahan bakar gas." },
+      { q: "Reaksi penggantian atom H dengan atom lain pada Alkana?", options: ["Adisi", "Substitusi", "Eliminasi", "Polimerisasi"], answer: 1, explanation: "Reaksi substitusi adalah reaksi khas alkana di mana atom H digantikan dengan atom lain (seperti halogen) karena alkana jenuh dan stabil." },
+      { q: "Semakin banyak cabang pada isomer, titik didih makin...?", options: ["Naik", "Turun", "Tetap", "Acak"], answer: 1, explanation: "Semakin banyak cabang, struktur molekul makin kompak sehingga luas permukaan berkurang dan gaya van der Waals melemah, titik didih menurun." },
+      { q: "Gugus alkil dengan 4 atom karbon lurus?", options: ["Propil", "Butil", "Pentil", "Heksil"], answer: 1, explanation: "Butil (n-butil) adalah gugus alkil dengan 4 atom karbon dalam rantai lurus (-C₄H₉)." },
+      { q: "Atom C terikat pada 2 atom C lain disebut?", options: ["Primer", "Sekunder", "Tersier", "Kuartener"], answer: 1, explanation: "Atom karbon sekunder adalah atom C yang terikat pada 2 atom karbon lain." },
+      { q: "Atom C terikat pada 4 atom C lain disebut?", options: ["Primer", "Sekunder", "Tersier", "Kuartener"], answer: 3, explanation: "Atom karbon kuartener adalah atom C yang terikat pada 4 atom karbon lain, biasanya berada di pusat cabang yang kompleks." }
+    ];
+    
+    // Helper: Fisher-Yates Shuffle
+    function shuffleArray(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+    }
+
+    // Initialize stars
+    function createStars(containerId) {
+      const container = document.getElementById(containerId);
+      if (!container) return;
+      container.innerHTML = '';
+      for (let i = 0; i < 100; i++) {
+        const star = document.createElement('div');
+        star.className = 'star';
+        star.style.left = Math.random() * 100 + '%';
+        star.style.top = Math.random() * 100 + '%';
+        star.style.width = Math.random() * 3 + 1 + 'px';
+        star.style.height = star.style.width;
+        star.style.animationDelay = Math.random() * 2 + 's';
+        container.appendChild(star);
+      }
+    }
+    
+    // --- Background Objects Spawner ---
+    const bgObjects = [
+      // UFO
+      `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="w-full h-full text-purple-400">
+          <path d="M2 12h20"/><path d="M7 12a5 5 0 0 1 10 0"/><path d="M4 12a8 8 0 0 0 16 0"/>
+          <circle cx="12" cy="12" r="2" fill="currentColor" fill-opacity="0.5"/>
+        </svg>`,
+      // Satellite
+      `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="w-full h-full text-blue-400">
+          <path d="M13 7l8-4"/><path d="M13 7l4 8"/><path d="M13 7h-8v8h8z"/><path d="M13 11l-4-4"/>
+          <rect x="2" y="2" width="4" height="4" transform="rotate(45 4 4)"/>
+        </svg>`,
+      // Planet
+      `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="w-full h-full text-cyan-500">
+          <circle cx="12" cy="12" r="8"/><path d="M2 12h20" stroke-opacity="0.3"/><path d="M12 2v20" stroke-opacity="0.3"/>
+          <path d="M7 12a5 5 0 0 1 10 0" transform="rotate(45 12 12)"/>
+        </svg>`,
+      // Astronaut
+        `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="w-full h-full text-gray-300">
+          <circle cx="12" cy="7" r="4"/><path d="M6 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/>
+        </svg>`
+    ];
+
+    function spawnBackgroundObject() {
+      const container = document.getElementById('background-objects');
+      if (!container) return;
+
+      const div = document.createElement('div');
+      div.className = 'bg-floater';
+      
+      const size = 30 + Math.random() * 30; // 30px to 60px
+      div.style.width = `${size}px`;
+      div.style.height = `${size}px`;
+
+      div.innerHTML = bgObjects[Math.floor(Math.random() * bgObjects.length)];
+      div.style.top = (Math.random() * 80) + '%';
+
+      const direction = Math.random() > 0.5 ? 'left' : 'right';
+      const duration = 15 + Math.random() * 10;
+      
+      if (direction === 'left') {
+        div.style.animation = `float-horizontal-right ${duration}s linear forwards`;
+      } else {
+        div.style.animation = `float-horizontal-left ${duration}s linear forwards`;
+      }
+
+      container.appendChild(div);
+
+      setTimeout(() => {
+        if(div.parentNode) div.remove();
+      }, duration * 1000);
+    }
+
+    // Show/Hide Screens
+    function showDashboard() {
+      document.getElementById('dashboard-screen').classList.remove('hidden');
+      document.getElementById('dashboard-screen').classList.add('flex');
+      document.getElementById('game-screen').classList.add('hidden');
+      document.getElementById('game-screen').classList.remove('flex');
+      document.getElementById('gameover-modal').classList.add('hidden');
+      document.getElementById('gameover-modal').classList.remove('flex');
+      
+      document.querySelectorAll('.dashboard-only').forEach(el => el.classList.remove('hidden'));
+    }
+    
+    function showGameScreen() {
+      document.getElementById('dashboard-screen').classList.add('hidden');
+      document.getElementById('dashboard-screen').classList.remove('flex');
+      document.getElementById('game-screen').classList.remove('hidden');
+      document.getElementById('game-screen').classList.add('flex');
+      
+      document.querySelectorAll('.dashboard-only').forEach(el => el.classList.add('hidden'));
+    }
+    
+    // Modals
+    function showInstructions() {
+      document.getElementById('instructions-modal').classList.remove('hidden');
+      document.getElementById('instructions-modal').classList.add('flex');
+    }
+    
+    function closeInstructions() {
+      document.getElementById('instructions-modal').classList.add('hidden');
+      document.getElementById('instructions-modal').classList.remove('flex');
+    }
+    
+    function showHistory(fromGameOver = false) {
+      gameState.fromGameOver = fromGameOver; 
+      
+      const historyContent = document.getElementById('history-content');
+      
+      if (gameState.history.length === 0) {
+        historyContent.innerHTML = '<p class="text-gray-400 text-center py-6 sm:py-8 text-sm sm:text-base">Belum ada riwayat permainan. Mulai bermain untuk melihat riwayat!</p>';
+      } else {
+        historyContent.innerHTML = gameState.history.map((item, index) => `
+          <div class="glass-effect rounded-lg p-3 sm:p-4 border ${item.correct ? 'border-green-500/50' : 'border-red-500/50'}">
+            <div class="flex justify-between items-start mb-2">
+              <span class="text-cyan-400 font-bold text-sm sm:text-base">#${index + 1}</span>
+              <span class="${item.correct ? 'text-green-400' : 'text-red-400'} font-bold text-sm sm:text-base">
+                ${item.correct ? '✓ Benar' : '✗ Salah'}
+              </span>
+            </div>
+            <p class="text-white font-semibold mb-2 text-sm sm:text-base">${item.question}</p>
+            <p class="text-gray-300 text-xs sm:text-sm mb-1">Jawaban kamu: <span class="${item.correct ? 'text-green-400' : 'text-red-400'}">${item.yourAnswer}</span></p>
+            ${!item.correct ? `<p class="text-gray-300 text-xs sm:text-sm mb-1">Jawaban benar: <span class="text-green-400">${item.correctAnswer}</span></p>` : ''}
+            <div class="mt-2 p-2 bg-cyan-900/30 rounded text-cyan-200 text-xs sm:text-sm">
+              💡 ${item.explanation}
+            </div>
+          </div>
+        `).join('');
+      }
+      
+      document.getElementById('history-modal').classList.remove('hidden');
+      document.getElementById('history-modal').classList.add('flex');
+    }
+    
+    function closeHistory() {
+      document.getElementById('history-modal').classList.add('hidden');
+      document.getElementById('history-modal').classList.remove('flex');
+      
+      if (gameState.fromGameOver) {
+        goHome();
+        gameState.fromGameOver = false; 
+      }
+    }
+    
+    function showHistoryFromGameOver() {
+      document.getElementById('gameover-modal').classList.add('hidden');
+      document.getElementById('gameover-modal').classList.remove('flex');
+      showHistory(true);
+    }
+    
+    function goHomeFromGameOver() {
+      document.getElementById('gameover-modal').classList.add('hidden');
+      document.getElementById('gameover-modal').classList.remove('flex');
+      goHome();
+    }
+    
+    function goHome() {
+      stopGame();
+      showDashboard();
+    }
+
+    // --- AUDIO SYSTEM (Sound Effects) ---
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    let audioCtx;
+    let musicEnabled = false;
+
+    function initAudio() {
+        if (!audioCtx) {
+            audioCtx = new AudioContext();
+        }
+        if (audioCtx.state === 'suspended') {
+            audioCtx.resume();
+        }
+    }
+
+    // --- MUSIC SYSTEM (Procedural Synthwave) ---
+    const musicSystem = {
+        isPlaying: false,
+        isMuted: true,
+        tempo: 125,
+        lookahead: 25.0,
+        scheduleAheadTime: 0.1, 
+        nextNoteTime: 0.0,
+        current16thNote: 0,
+        timerID: null,
+        masterGain: null,
+        duckTimer: null,
+        
+        arpNotes: [293.66, 349.23, 392.00, 440.00, 523.25, 440.00, 392.00, 349.23], 
+        bassNotes: [73.42, 73.42, 73.42, 73.42, 87.31, 87.31, 65.41, 65.41],
+
+        start: function() {
+            if (this.isPlaying || this.isMuted) return;
+            if (!audioCtx) initAudio();
+            
+            if (!this.masterGain) {
+                this.masterGain = audioCtx.createGain();
+                this.masterGain.connect(audioCtx.destination);
+                this.masterGain.gain.value = 0.8; 
+            }
+            
+            this.isPlaying = true;
+            this.nextNoteTime = audioCtx.currentTime + 0.1;
+            this.current16thNote = 0;
+            this.scheduler();
+        },
+
+        stop: function() {
+            this.isPlaying = false;
+            clearTimeout(this.timerID);
+        },
+        
+        toggle: function() {
+            this.isMuted = !this.isMuted;
+            
+            const btns = document.querySelectorAll('.music-icon-display');
+            btns.forEach(btn => {
+                btn.textContent = this.isMuted ? '🔇' : '🎵';
+            });
+
+            if(this.isMuted) {
+                this.stop();
+            } else {
+                this.start();
+            }
+        },
+
+        duckVolume: function() {
+            if (!this.masterGain || this.isMuted) return;
+            
+            const now = audioCtx.currentTime;
+            this.masterGain.gain.cancelScheduledValues(now);
+            this.masterGain.gain.setTargetAtTime(0.2, now, 0.05); 
+            
+            if (this.duckTimer) clearTimeout(this.duckTimer);
+            
+            this.duckTimer = setTimeout(() => {
+                if (!this.masterGain) return;
+                const restoreTime = audioCtx.currentTime;
+                this.masterGain.gain.cancelScheduledValues(restoreTime);
+                this.masterGain.gain.setTargetAtTime(0.8, restoreTime, 0.5);
+            }, 400); 
+        },
+
+        scheduler: function() {
+            if (!this.isPlaying) return;
+            
+            while (this.nextNoteTime < audioCtx.currentTime + this.scheduleAheadTime) {
+                this.scheduleNote(this.current16thNote, this.nextNoteTime);
+                this.nextNote();
+            }
+            this.timerID = setTimeout(() => this.scheduler(), this.lookahead);
+        },
+
+        nextNote: function() {
+            const secondsPerBeat = 60.0 / this.tempo;
+            this.nextNoteTime += 0.25 * secondsPerBeat;
+            this.current16thNote = (this.current16thNote + 1) % 16;
+        },
+
+        scheduleNote: function(beatNumber, time) {
+            if(this.isMuted || !this.masterGain) return;
+
+            if (beatNumber % 4 === 0) {
+                this.playKick(time);
+            }
+            if (beatNumber % 8 === 4) {
+                 this.playSnare(time);
+            }
+            if (beatNumber % 2 === 0) {
+                this.playHiHat(time, beatNumber % 4 === 2); 
+            }
+            if (beatNumber % 2 === 0) { 
+                const bassIdx = Math.floor(beatNumber / 2) % 8; 
+                this.playBass(time, this.bassNotes[bassIdx]);
+            }
+            const arpIdx = beatNumber % this.arpNotes.length;
+            this.playArp(time, this.arpNotes[arpIdx]);
+        },
+
+        playKick: function(time) {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(this.masterGain);
+            
+            osc.frequency.setValueAtTime(150, time);
+            osc.frequency.exponentialRampToValueAtTime(0.01, time + 0.5);
+            
+            gain.gain.setValueAtTime(0.8, time); 
+            gain.gain.exponentialRampToValueAtTime(0.001, time + 0.5);
+            
+            osc.start(time);
+            osc.stop(time + 0.5);
+        },
+
+        playSnare: function(time) {
+             const bufferSize = audioCtx.sampleRate * 0.2; 
+             const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+             const data = buffer.getChannelData(0);
+             for (let i = 0; i < bufferSize; i++) {
+                 data[i] = Math.random() * 2 - 1;
+             }
+
+             const noise = audioCtx.createBufferSource();
+             noise.buffer = buffer;
+             const noiseFilter = audioCtx.createBiquadFilter();
+             noiseFilter.type = 'highpass';
+             noiseFilter.frequency.value = 1000;
+             const noiseEnvelope = audioCtx.createGain();
+             
+             noise.connect(noiseFilter);
+             noiseFilter.connect(noiseEnvelope);
+             noiseEnvelope.connect(this.masterGain);
+             
+             noiseEnvelope.gain.setValueAtTime(0.5, time);
+             noiseEnvelope.gain.exponentialRampToValueAtTime(0.01, time + 0.2);
+             
+             noise.start(time);
+        },
+
+        playHiHat: function(time, isOpen) {
+             const bufferSize = audioCtx.sampleRate * 0.05;
+             const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+             const data = buffer.getChannelData(0);
+             for (let i = 0; i < bufferSize; i++) {
+                 data[i] = Math.random() * 2 - 1;
+             }
+
+             const noise = audioCtx.createBufferSource();
+             noise.buffer = buffer;
+             const bandpass = audioCtx.createBiquadFilter();
+             bandpass.type = 'bandpass';
+             bandpass.frequency.value = 10000;
+             const envelope = audioCtx.createGain();
+
+             noise.connect(bandpass);
+             bandpass.connect(envelope);
+             envelope.connect(this.masterGain);
+
+             const vol = isOpen ? 0.3 : 0.15;
+             const decay = isOpen ? 0.1 : 0.05;
+             
+             envelope.gain.setValueAtTime(vol, time);
+             envelope.gain.exponentialRampToValueAtTime(0.01, time + decay);
+
+             noise.start(time);
+        },
+
+        playBass: function(time, freq) {
+            const osc = audioCtx.createOscillator();
+            const filter = audioCtx.createBiquadFilter();
+            const gain = audioCtx.createGain();
+
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(freq, time);
+
+            filter.type = 'lowpass';
+            filter.frequency.setValueAtTime(400, time);
+            filter.frequency.exponentialRampToValueAtTime(100, time + 0.2);
+
+            gain.gain.setValueAtTime(0.4, time);
+            gain.gain.exponentialRampToValueAtTime(0.01, time + 0.3);
+
+            osc.connect(filter);
+            filter.connect(gain);
+            gain.connect(this.masterGain);
+
+            osc.start(time);
+            osc.stop(time + 0.3);
+        },
+
+        playArp: function(time, freq) {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            
+            osc.type = 'square';
+            osc.frequency.setValueAtTime(freq, time);
+
+            gain.gain.setValueAtTime(0.05, time);
+            gain.gain.exponentialRampToValueAtTime(0.001, time + 0.1);
+
+            osc.connect(gain);
+            gain.connect(this.masterGain);
+
+            osc.start(time);
+            osc.stop(time + 0.1);
+        }
+    };
+
+    function toggleMusic() {
+        initAudio();
+        musicSystem.toggle();
+    }
+
+    // --- FULLSCREEN TOGGLE ---
+    function toggleFullScreen() {
+        const btns = document.querySelectorAll('.fullscreen-icon-display');
+        
+        if (!document.fullscreenElement) {
+            document.documentElement.requestFullscreen().catch(err => {
+                console.warn("Fullscreen error:", err);
+            });
+            btns.forEach(btn => btn.textContent = '↙️'); // Exit icon
+        } else {
+            if (document.exitFullscreen) {
+                document.exitFullscreen();
+                btns.forEach(btn => btn.textContent = '⛶'); // Enter icon
+            }
+        }
+    }
+
+    document.addEventListener('fullscreenchange', () => {
+        const btns = document.querySelectorAll('.fullscreen-icon-display');
+        if (document.fullscreenElement) {
+            btns.forEach(btn => btn.textContent = '↙️');
+        } else {
+            btns.forEach(btn => btn.textContent = '⛶');
+        }
+    });
+
+    function playLaserSound() {
+        if (!audioCtx) initAudio();
+        musicSystem.duckVolume();
+        
+        const oscillator = audioCtx.createOscillator();
+        const gainNode = audioCtx.createGain();
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(audioCtx.destination);
+        
+        oscillator.type = 'sawtooth';
+        oscillator.frequency.setValueAtTime(800, audioCtx.currentTime);
+        oscillator.frequency.exponentialRampToValueAtTime(100, audioCtx.currentTime + 0.15);
+        
+        gainNode.gain.setValueAtTime(0.05, audioCtx.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.15);
+        
+        oscillator.start();
+        oscillator.stop(audioCtx.currentTime + 0.15);
+    }
+
+    function playExplosionSound() {
+        if (!audioCtx) initAudio();
+        musicSystem.duckVolume();
+        
+        const t = audioCtx.currentTime;
+        const osc = audioCtx.createOscillator();
+        const gainNode = audioCtx.createGain();
+        
+        osc.connect(gainNode);
+        gainNode.connect(audioCtx.destination);
+        
+        osc.type = 'triangle'; 
+        osc.frequency.setValueAtTime(100, t); 
+        osc.frequency.exponentialRampToValueAtTime(10, t + 0.6); 
+        
+        gainNode.gain.setValueAtTime(0.8, t);
+        gainNode.gain.exponentialRampToValueAtTime(0.001, t + 0.6);
+        
+        osc.start();
+        osc.stop(t + 0.6);
+    }
+
+    function playWrongSound() {
+        if (!audioCtx) initAudio();
+        
+        const t = audioCtx.currentTime;
+        const osc = audioCtx.createOscillator();
+        const gainNode = audioCtx.createGain();
+        
+        osc.connect(gainNode);
+        gainNode.connect(audioCtx.destination);
+        
+        osc.type = 'square';
+        osc.frequency.setValueAtTime(120, t);
+        osc.frequency.linearRampToValueAtTime(90, t + 0.1);  
+        osc.frequency.linearRampToValueAtTime(120, t + 0.2); 
+        osc.frequency.linearRampToValueAtTime(40, t + 0.4);  
+        
+        gainNode.gain.setValueAtTime(0.15, t);
+        gainNode.gain.linearRampToValueAtTime(0, t + 0.4);
+        
+        osc.start();
+        osc.stop(t + 0.4);
+    }
+    
+    // Game Functions
+    function startGame() {
+      initAudio();
+
+      if (!musicSystem.isMuted) {
+          musicSystem.start();
+      }
+
+      gameState.score = 0;
+      gameState.lives = 3;
+      gameState.timeLeft = 100;
+      gameState.isPlaying = true;
+      gameState.selectedRock = null;
+      gameState.rocks = [];
+      gameState.history = [];
+      gameState.correctCount = 0;
+      gameState.wrongCount = 0;
+      
+      gameState.questionPool = [...questions]; 
+      shuffleArray(gameState.questionPool);
+
+      document.getElementById('rocks-container').innerHTML = '';
+      document.getElementById('background-objects').innerHTML = ''; 
+      document.getElementById('answer-panel').classList.add('hidden');
+      document.getElementById('answer-panel').style.display = 'none'; 
+      
+      updateScore();
+      updateTimer();
+      updateLives();
+      
+      document.getElementById('gameover-modal').classList.add('hidden');
+      document.getElementById('gameover-modal').classList.remove('flex');
+      
+      showGameScreen();
+      createStars('game-stars');
+      
+      const rocket = document.getElementById('rocket');
+      rocket.style.left = '50%';
+      
+      gameState.timerInterval = setInterval(() => {
+        gameState.timeLeft--;
+        updateTimer();
+        if (gameState.timeLeft <= 0) {
+          endGame();
+        }
+      }, 1000);
+      
+      gameState.gameLoop = setInterval(() => {
+        if (gameState.isPlaying) {
+          spawnRock();
+          updateRocks();
+        }
+      }, 100);
+      
+      gameState.backgroundObjectsInterval = setInterval(() => {
+        if (gameState.isPlaying) {
+            spawnBackgroundObject();
+        }
+      }, 4000);
+      
+      spawnBackgroundObject();
+      setTimeout(() => spawnRock(true), 100);
+    }
+    
+    function stopGame() {
+      gameState.isPlaying = false;
+      clearInterval(gameState.timerInterval);
+      clearInterval(gameState.gameLoop);
+      clearInterval(gameState.backgroundObjectsInterval); 
+      stopContinuousShooting();
+      
+      gameState.selectedRock = null;
+      
+      const answerPanel = document.getElementById('answer-panel');
+      if (answerPanel) {
+        answerPanel.classList.add('hidden');
+        answerPanel.style.display = 'none';
+      }
+      
+      gameState.rocks.forEach(r => {
+          if (r.element) {
+              r.element.style.boxShadow = '0 0 15px rgba(233, 69, 96, 0.5), inset 0 0 20px rgba(233, 69, 96, 0.2)';
+              r.element.style.border = '2px solid #e94560';
+              r.element.style.zIndex = '20';
+          }
+      });
+      
+      document.getElementById('lives').classList.remove('animate-urgent');
+    }
+    
+    function endGame() {
+      stopGame();
+      
+      if (gameState.score > gameState.highScore) {
+        gameState.highScore = gameState.score;
+        localStorage.setItem('hydrocarbon_highscore', gameState.highScore);
+        
+        document.getElementById('high-score-display').textContent = gameState.highScore;
+      }
+      
+      document.getElementById('final-score').textContent = gameState.score;
+      document.getElementById('correct-count').textContent = gameState.correctCount;
+      document.getElementById('wrong-count').textContent = gameState.wrongCount;
+      document.getElementById('gameover-modal').classList.remove('hidden');
+      document.getElementById('gameover-modal').classList.add('flex');
+    }
+    
+    function updateScore() {
+      document.getElementById('score').textContent = gameState.score;
+    }
+    
+    function updateTimer() {
+      const timerEl = document.getElementById('timer');
+      timerEl.textContent = gameState.timeLeft;
+      if (gameState.timeLeft <= 10) {
+        timerEl.classList.add('animate-pulse');
+      }
+    }
+
+    function updateLives() {
+        const livesEl = document.getElementById('lives');
+        let hearts = '';
+        for(let i=0; i<gameState.lives; i++) hearts += '❤️';
+        livesEl.textContent = hearts;
+    }
+    
+    let spawnCounter = 0;
+    function spawnRock(force = false) {
+      if (!force) spawnCounter++;
+      if (!force && spawnCounter % 25 !== 0) return; 
+      if (gameState.rocks.length >= 5) return; 
+      
+      if (gameState.questionPool.length === 0) return; 
+
+      const container = document.getElementById('rocks-container');
+      const gameArea = document.getElementById('game-area');
+      
+      const question = gameState.questionPool.pop();
+      
+      const isMobile = window.innerWidth < 640;
+      const rockSize = Math.min(gameArea.offsetWidth * 0.25, isMobile ? 70 : 100); 
+      
+      let safeX = 0;
+      let attempts = 0;
+      let validPosition = false;
+      
+      while (!validPosition && attempts < 15) {
+        safeX = (Math.random() * (gameArea.offsetWidth - rockSize - 20) + 10);
+        validPosition = true;
+        
+        for (const otherRock of gameState.rocks) {
+          if (Math.abs(safeX - otherRock.baseX) < rockSize * 1.2) {
+            validPosition = false;
+            break; 
+          }
+        }
+        attempts++;
+      }
+      
+      const startY = -rockSize - 10;
+
+      const rock = document.createElement('div');
+      rock.className = 'alien-rock absolute cursor-pointer pointer-events-auto flex items-center justify-center p-3 transition-all duration-200 hover:scale-105 active:scale-95 z-20';
+      rock.style.width = rockSize + 'px';
+      rock.style.height = rockSize + 'px';
+      
+      rock.style.left = safeX + 'px';
+      
+      rock.style.top = startY + 'px';
+      rock.innerHTML = `<span class="text-white ${isMobile ? 'text-[10px]' : 'text-xs'} text-center font-bold leading-tight select-none pointer-events-none drop-shadow-md overflow-hidden">${question.q}</span>`;
+      
+      // Calculate Difficulty Speed
+      const baseSpeed = 0.5;
+      // Increases by 0.1 for every 20 points, capped at +1.5 extra speed
+      const speedIncrease = Math.min(gameState.score / 200, 1.5); 
+      
+      const rockData = {
+        element: rock,
+        question: question,
+        y: startY,
+        baseX: safeX, 
+        x: safeX,     
+        speed: (baseSpeed + speedIncrease) + Math.random() * 0.5,
+        
+        swayAmplitude: 20 + Math.random() * 30, 
+        swaySpeed: 1 + Math.random() * 1.5,     
+        swayPhase: Math.random() * Math.PI * 2, 
+        
+        id: Date.now() + Math.random()
+      };
+      
+      rock.onclick = (e) => {
+          e.stopPropagation(); 
+          selectRock(rockData);
+      };
+      
+      rock.ontouchend = (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          selectRock(rockData);
+      };
+      
+      container.appendChild(rock);
+      gameState.rocks.push(rockData);
+    }
+    
+    function updateRocks() {
+      const gameArea = document.getElementById('game-area');
+      const maxY = gameArea.offsetHeight - 50; 
+      const maxWidth = gameArea.offsetWidth;
+      
+      const dangerThreshold = maxY - (gameArea.offsetHeight * 0.25);
+      let isDanger = false;
+      const time = Date.now() / 1000; 
+
+      gameState.rocks.forEach((rock, index) => {
+        rock.y += rock.speed;
+        
+        const swayOffset = Math.sin(time * rock.swaySpeed + rock.swayPhase) * rock.swayAmplitude;
+        
+        rock.x = rock.baseX + swayOffset;
+        
+        if (rock.x < 0) rock.x = 0;
+        if (rock.x > maxWidth - rock.element.offsetWidth) rock.x = maxWidth - rock.element.offsetWidth;
+        
+        rock.element.style.top = rock.y + 'px';
+        rock.element.style.left = rock.x + 'px';
+        
+        if (gameState.selectedRock && gameState.selectedRock.id === rock.id) {
+             const rocket = document.getElementById('rocket');
+             const rockCenter = rock.x + (rock.element.offsetWidth / 2);
+             rocket.style.left = rockCenter + 'px';
+             
+             const laser = document.getElementById('laser-beam');
+             if (!laser.classList.contains('hidden')) {
+                laser.style.left = (rockCenter - 4) + 'px';
+             }
+        }
+        
+        if (rock.y > dangerThreshold) {
+          isDanger = true;
+        }
+
+        if (rock.y >= maxY) {
+          gameState.score = Math.max(0, gameState.score - 2);
+          updateScore();
+
+          gameState.lives--;
+          updateLives();
+          
+          document.getElementById('game-area').classList.add('wrong-flash');
+          setTimeout(() => document.getElementById('game-area').classList.remove('wrong-flash'), 300);
+          
+          rock.element.remove();
+          gameState.rocks.splice(index, 1);
+          
+          if (gameState.selectedRock && gameState.selectedRock.id === rock.id) {
+            gameState.selectedRock = null;
+            document.getElementById('answer-panel').classList.add('hidden');
+          }
+
+          if(gameState.lives <= 0) {
+              endGame();
+          }
+        }
+      });
+
+      const livesEl = document.getElementById('lives');
+      if (isDanger && gameState.lives > 0) {
+        livesEl.classList.add('animate-urgent');
+      } else {
+        livesEl.classList.remove('animate-urgent');
+      }
+    }
+    
+    function selectRock(rockData) {
+      if (!gameState.isPlaying) return;
+      
+      gameState.selectedRock = rockData;
+      
+      const rocket = document.getElementById('rocket');
+      const gameArea = document.getElementById('game-area');
+      
+      const isMobile = window.innerWidth < 640;
+      const rockSize = Math.min(gameArea.offsetWidth * 0.25, isMobile ? 70 : 100); 
+      
+      const rockX = rockData.x + (rockSize / 2); 
+      rocket.style.left = rockX + 'px';
+      
+      gameState.rocks.forEach(r => {
+        r.element.style.boxShadow = r.id === rockData.id 
+          ? '0 0 30px rgba(0, 255, 255, 0.9), inset 0 0 20px rgba(0, 255, 255, 0.5)'
+          : '0 0 15px rgba(233, 69, 96, 0.5), inset 0 0 20px rgba(233, 69, 96, 0.2)';
+        
+        r.element.style.border = r.id === rockData.id 
+          ? '2px solid #00ffff'
+          : '2px solid #e94560';
+          
+        r.element.style.zIndex = r.id === rockData.id ? '30' : '20';
+      });
+      
+      startContinuousShooting(rockData);
+      
+      showAnswerPanel(rockData.question);
+    }
+    
+    function showAnswerPanel(question) {
+      const panel = document.getElementById('answer-panel');
+      const questionText = document.getElementById('question-text');
+      const optionsContainer = document.getElementById('options-container');
+      
+      if (!question || !question.options) {
+        console.error("Data soal tidak valid atau kosong");
+        return;
+      }
+      
+      questionText.textContent = question.q;
+      
+      optionsContainer.innerHTML = '';
+      
+      question.options.forEach((opt, index) => {
+        const btn = document.createElement('button');
+        btn.className = "btn-futuristic w-full text-left p-3 rounded-lg flex items-center gap-3 transition-transform active:scale-95 mb-1 sm:mb-2 hover:brightness-110";
+        btn.style.minHeight = "44px"; 
+        
+        btn.innerHTML = `
+            <span class="font-orbitron font-bold text-cyan-400 text-base sm:text-lg shrink-0">${String.fromCharCode(65 + index)}.</span>
+            <span class="text-white font-medium text-xs sm:text-sm leading-tight">${opt}</span>
+        `;
+        
+        btn.onclick = function() {
+            submitAnswer(index);
+        };
+        
+        optionsContainer.appendChild(btn);
+      });
+      
+      panel.classList.remove('hidden');
+      panel.style.display = 'block'; 
+    }
+    
+    function startContinuousShooting(rock) {
+      if (gameState.shootingInterval) {
+        clearInterval(gameState.shootingInterval);
+      }
+      
+      gameState.shootingInterval = setInterval(() => {
+        if (!gameState.selectedRock || !gameState.isPlaying) {
+          clearInterval(gameState.shootingInterval);
+          gameState.shootingInterval = null;
+          return;
+        }
+        shootSingleBullet(rock);
+      }, 150);
+    }
+    
+    function stopContinuousShooting() {
+      if (gameState.shootingInterval) {
+        clearInterval(gameState.shootingInterval);
+        gameState.shootingInterval = null;
+      }
+    }
+    
+    function shootSingleBullet(rock) {
+      playLaserSound();
+
+      const rocket = document.getElementById('rocket');
+      const gameArea = document.getElementById('game-area');
+      const gameRect = gameArea.getBoundingClientRect();
+      
+      if (!rock.element || !rock.element.parentNode) {
+        stopContinuousShooting();
+        return;
+      }
+      
+      const rockRect = rock.element.getBoundingClientRect();
+      const rocketRect = rocket.getBoundingClientRect();
+      
+      const rocketCenterX = rocketRect.left + rocketRect.width / 2 - gameRect.left;
+      const rocketTop = rocketRect.top - gameRect.top;
+      const rockCenterY = rockRect.top + rockRect.height / 2 - gameRect.top;
+      
+      const bullet = document.createElement('div');
+      bullet.className = 'bullet';
+      bullet.style.left = (rocketCenterX - 4) + 'px';
+      bullet.style.top = rocketTop + 'px';
+      
+      const distance = rockCenterY - rocketTop;
+      bullet.style.setProperty('--bullet-distance', distance + 'px');
+      
+      gameArea.appendChild(bullet);
+      
+      bullet.style.animation = 'bullet-shoot 0.3s linear forwards';
+      
+      setTimeout(() => {
+        bullet.remove();
+      }, 300);
+    }
+    
+    window.submitAnswer = function(answerIndex) {
+      if (!gameState.selectedRock || !gameState.isPlaying) return;
+      
+      stopContinuousShooting();
+      
+      const question = gameState.selectedRock.question;
+      const correct = answerIndex === question.answer;
+      
+      gameState.history.push({
+        question: question.q,
+        yourAnswer: question.options[answerIndex],
+        correctAnswer: question.options[question.answer],
+        explanation: question.explanation,
+        correct: correct
+      });
+      
+      if (correct) {
+        gameState.score += 10;
+        gameState.correctCount++;
+        document.getElementById('game-area').classList.add('correct-flash');
+        setTimeout(() => document.getElementById('game-area').classList.remove('correct-flash'), 300);
+        
+        explodeRock(gameState.selectedRock);
+      } else {
+        gameState.score = Math.max(0, gameState.score - 5);
+        gameState.wrongCount++;
+        
+        playWrongSound();
+
+        const gameArea = document.getElementById('game-area');
+        
+        gameArea.classList.add('wrong-flash');
+        setTimeout(() => gameArea.classList.remove('wrong-flash'), 300);
+        
+        gameArea.classList.add('shake');
+        setTimeout(() => gameArea.classList.remove('shake'), 400);
+
+        if (navigator.vibrate) {
+            navigator.vibrate(200);
+        }
+        
+        if (gameState.selectedRock && gameState.selectedRock.element) {
+            const rockRect = gameState.selectedRock.element.getBoundingClientRect();
+            const gameRect = gameArea.getBoundingClientRect();
+            
+            const rockCenterX = rockRect.left + rockRect.width / 2 - gameRect.left;
+            const rockCenterY = rockRect.top + rockRect.height / 2 - gameRect.top;
+            
+            createFloatingPoints(rockCenterX, rockCenterY, -5, gameArea, true);
+        }
+        
+        gameState.rocks.forEach(r => {
+          r.element.style.boxShadow = '0 0 15px rgba(233, 69, 96, 0.5), inset 0 0 20px rgba(233, 69, 96, 0.2)';
+        });
+      }
+      
+      updateScore();
+      
+      gameState.selectedRock = null;
+      document.getElementById('answer-panel').classList.add('hidden');
+      document.getElementById('answer-panel').style.display = 'none';
+    }
+    
+    function explodeRock(rock) {
+      playExplosionSound();
+
+      const rocket = document.getElementById('rocket');
+      const rockRect = rock.element.getBoundingClientRect();
+      const rocketRect = rocket.getBoundingClientRect();
+      const gameArea = document.getElementById('game-area');
+      const gameRect = gameArea.getBoundingClientRect();
+      
+      const rocketCenterX = rocketRect.left + rocketRect.width / 2 - gameRect.left;
+      const rocketTop = rocketRect.top - gameRect.top;
+      const rockCenterX = rockRect.left + rocketRect.width / 2 - gameRect.left;
+      const rockCenterY = rockRect.top + rockRect.height / 2 - gameRect.top;
+      
+      createExplosion(rockCenterX, rockCenterY, gameArea);
+      
+      createShards(rockCenterX, rockCenterY, rockRect.width, gameArea);
+
+      createFloatingPoints(rockCenterX, rockCenterY, 10, gameArea);
+      
+      rock.element.style.opacity = '0';
+      rock.element.style.pointerEvents = 'none';
+      
+      const laser = document.getElementById('laser-beam');
+      const distance = rockCenterY - rocketTop;
+      laser.style.left = (rocketCenterX - 4) + 'px';
+      laser.style.top = rockCenterY + 'px';
+      laser.style.height = distance + 'px';
+      laser.classList.remove('hidden');
+      laser.classList.add('laser-shooting');
+      
+      setTimeout(() => {
+        laser.classList.add('hidden');
+        laser.classList.remove('laser-shooting');
+      }, 400);
+      
+      setTimeout(() => {
+        const rockIndex = gameState.rocks.findIndex(r => r.id === rock.id);
+        if (rockIndex !== -1) {
+          gameState.rocks[rockIndex].element.remove();
+          gameState.rocks.splice(rockIndex, 1);
+        }
+      }, 100);
+    }
+
+    function createFloatingPoints(x, y, amount, container, isPenalty = false) {
+      const el = document.createElement('div');
+      el.className = 'floating-points';
+      el.textContent = (amount > 0 ? '+' : '') + amount;
+      el.style.left = x + 'px';
+      el.style.top = y + 'px';
+      
+      if (isPenalty) {
+        el.style.color = '#ef4444'; 
+        el.style.textShadow = '0 0 15px rgba(239, 68, 68, 0.8), 2px 2px 0px rgba(0,0,0,0.8)';
+      }
+      
+      container.appendChild(el);
+      
+      setTimeout(() => {
+        el.remove();
+      }, 800); 
+    }
+    
+    function createShards(x, y, rockSize, container) {
+      const shardCount = 8; 
+      
+      for (let i = 0; i < shardCount; i++) {
+        const shard = document.createElement('div');
+        shard.className = 'shard';
+        
+        const size = (rockSize / 3) + Math.random() * (rockSize / 4);
+        shard.style.width = size + 'px';
+        shard.style.height = size + 'px';
+        
+        const startX = x - (size/2) + (Math.random() * 20 - 10);
+        const startY = y - (size/2) + (Math.random() * 20 - 10);
+        shard.style.left = startX + 'px';
+        shard.style.top = startY + 'px';
+        
+        const angle = Math.random() * Math.PI * 2;
+        const velocity = 60 + Math.random() * 100; 
+        const tx = Math.cos(angle) * velocity;
+        const ty = Math.sin(angle) * velocity;
+        const rot = Math.random() * 720 - 360; 
+        
+        shard.style.setProperty('--tx', tx + 'px');
+        shard.style.setProperty('--ty', ty + 'px');
+        shard.style.setProperty('--rot', rot + 'deg');
+        
+        const duration = 0.5 + Math.random() * 0.3;
+        shard.style.animation = `shard-fly ${duration}s ease-out forwards`;
+        
+        container.appendChild(shard);
+        
+        setTimeout(() => shard.remove(), duration * 1000);
+      }
+    }
+
+    function createExplosion(x, y, container) {
+      const colors = ['#00ffff', '#0ea5e9', '#ff6b35', '#ffcc00', '#ff0080'];
+      const particleCount = 12;
+      
+      for (let i = 0; i < particleCount; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'explosion-particle';
+        particle.style.left = x + 'px';
+        particle.style.top = y + 'px';
+        particle.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+        
+        const angle = (Math.PI * 2 * i) / particleCount;
+        const distance = 40 + Math.random() * 30;
+        const tx = Math.cos(angle) * distance;
+        const ty = Math.sin(angle) * distance;
+        
+        particle.style.setProperty('--tx', tx + 'px');
+        particle.style.setProperty('--ty', ty + 'px');
+        particle.style.animation = `particle-burst 0.6s ease-out forwards`;
+        particle.style.animationDelay = Math.random() * 0.1 + 's';
+        
+        container.appendChild(particle);
+        
+        setTimeout(() => particle.remove(), 700);
+      }
+    }
+    
+    // Element SDK Integration (Optional)
+    function onConfigChange(newConfig) {
+      config = { ...defaultConfig, ...newConfig };
+      
+      const gameTitle = document.getElementById('game-title');
+      if (gameTitle) gameTitle.textContent = config.game_title || defaultConfig.game_title;
+      
+      const startBtn = document.getElementById('start-btn');
+      if (startBtn) startBtn.textContent = config.start_button_text || defaultConfig.start_button_text;
+    }
+    
+    // Create stars on load
+    createStars('stars-container');
+    
+    // Update high score display
+    document.getElementById('high-score-display').textContent = gameState.highScore;
+  </script>
+ </body>
+</html>

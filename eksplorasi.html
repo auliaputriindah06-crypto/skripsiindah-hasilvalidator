@@ -1,0 +1,1189 @@
+<!doctype html>
+<html lang="id">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Zona Eksplorasi | Hidrokarbon 🧭</title>
+  <link rel="icon" href="favicon.png" type="image/png">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap');
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f0f9ff;
+            overflow-x: hidden;
+            -webkit-tap-highlight-color: transparent; /* Remove tap highlight on mobile */
+        }
+
+        /* --- Existing Styles --- */
+        
+        .molecule-bg {
+            position: absolute;
+            width: 100%; height: 100%;
+            top: 0; left: 0;
+            z-index: -1;
+            opacity: 0.1;
+            pointer-events: none;
+        }
+        
+        .floating-molecule {
+            position: absolute;
+            animation: floatAround 20s infinite linear;
+        }
+        @keyframes floatAround {
+            0% { transform: translate(0, 0) rotate(0deg); }
+            25% { transform: translate(50px, 20px) rotate(90deg); }
+            50% { transform: translate(0, 50px) rotate(180deg); }
+            75% { transform: translate(-50px, 20px) rotate(270deg); }
+            100% { transform: translate(0, 0) rotate(360deg); }
+        }
+        
+        .fade-in { animation: fadeIn 1s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        
+        .slide-up { animation: slideUp 0.8s ease-out; }
+        @keyframes slideUp { from { transform: translateY(50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        
+        /* Navigation buttons */
+        .nav-button {
+            position: fixed;
+            bottom: 20px;
+            width: 48px; height: 48px; /* Slightly larger for touch */
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            z-index: 100;
+            transition: all 0.3s ease;
+        }
+        .nav-button:hover { transform: translateY(-3px); box-shadow: 0 6px 15px rgba(0, 0, 0, 0.25); }
+        .nav-button:active { transform: scale(0.95); } /* Touch feedback */
+        
+        /* Editable link styles */
+        .editable-link { position: relative; cursor: pointer; }
+        @media (min-width: 1024px) {
+            .editable-link:hover::after {
+                content: '✏️';
+                position: absolute;
+                right: -25px; top: 50%;
+                transform: translateY(-50%);
+                font-size: 14px;
+            }
+        }
+        
+        .link-edit-modal {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex; align-items: center; justify-content: center;
+            z-index: 1000;
+            opacity: 0; visibility: hidden;
+            transition: all 0.3s ease;
+            padding: 16px;
+        }
+        .link-edit-modal.active { opacity: 1; visibility: visible; }
+        
+        .link-edit-content {
+            background-color: white; padding: 20px;
+            border-radius: 12px;
+            width: 100%; max-width: 500px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            transform: translateY(20px);
+            transition: all 0.3s ease;
+        }
+        .link-edit-modal.active .link-edit-content { transform: translateY(0); }
+
+        /* Card Hover Lift */
+        .card-lift:hover { transform: translateY(-8px); }
+
+        /* --- New Zona Eksplorasi Styles --- */
+        .gradient-bg { background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #4ECDC4 100%); }
+        
+        .card-hover-explore { transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .card-hover-explore:hover {
+            transform: translateY(-8px) scale(1.01);
+            box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.25);
+        }
+        
+        .floating { animation: float 3s ease-in-out infinite; }
+        
+        .pulse-glow { animation: pulseGlow 2s ease-in-out infinite; }
+        @keyframes pulseGlow {
+            0%, 100% { box-shadow: 0 0 20px rgba(78, 205, 196, 0.4); }
+            50% { box-shadow: 0 0 40px rgba(78, 205, 196, 0.8); }
+        }
+        
+        .content-section { animation: fadeIn 0.5s ease-out; }
+        
+        .sparkle { animation: sparkle 1.5s ease-in-out infinite; }
+        @keyframes sparkle {
+            0%, 100% { opacity: 0.6; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.2); }
+        }
+        
+        .tab-active {
+            background: linear-gradient(135deg, #4ECDC4, #44A8FF);
+            color: white !important;
+            transform: scale(1.05);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .progress-bar { transition: width 0.5s ease; }
+
+        /* Modal Styles for Exploration */
+        .modal-overlay {
+            display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            animation: fadeIn 0.3s ease-out;
+            padding: 16px; /* Padding for mobile */
+            backdrop-filter: blur(2px);
+        }
+        .modal-overlay.active { display: flex; align-items: center; justify-content: center; }
+
+        .modal-content {
+            background: white; border-radius: 20px;
+            padding: 24px;
+            max-width: 600px; width: 100%;
+            max-height: 90vh; overflow-y: auto;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            animation: slideUpModal 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        @media (min-width: 768px) { .modal-content { padding: 32px; border-radius: 24px; } }
+
+        @keyframes slideUpModal {
+            from { opacity: 0; transform: translateY(40px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .modal-header {
+            display: flex; align-items: center; gap: 12px;
+            margin-bottom: 20px;
+            border-bottom: 3px solid #7FD8BE;
+            padding-bottom: 16px;
+        }
+
+        .modal-header h2 {
+            margin: 0; font-size: 20px; color: #1f2937; font-weight: bold;
+        }
+        @media (min-width: 768px) { .modal-header h2 { font-size: 24px; } }
+
+        .modal-close {
+            margin-left: auto;
+            background: #f3f4f6; border: none;
+            width: 36px; height: 36px;
+            border-radius: 10px;
+            cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            transition: all 0.3s ease;
+        }
+        @media (min-width: 768px) { .modal-close { width: 40px; height: 40px; border-radius: 12px; } }
+        .modal-close:hover { background: #e5e7eb; transform: rotate(90deg); }
+
+        .feature-card-modal {
+            background: linear-gradient(135deg, #f5f7fa 0%, #ffffff 100%);
+            border: 2px solid #e5e7eb; border-radius: 16px;
+            padding: 16px; margin: 12px 0;
+            transition: all 0.3s ease;
+            position: relative; overflow: hidden;
+        }
+        @media (min-width: 768px) { .feature-card-modal { padding: 20px; margin: 16px 0; } }
+
+        .feature-card-modal:hover {
+            border-color: #667eea;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.15);
+            transform: translateY(-4px);
+        }
+
+        .feature-card-modal::before {
+            content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px;
+            background: linear-gradient(90deg, #667eea, #4ECDC4, #FFD93D);
+        }
+
+        .feature-icon-modal {
+            font-size: 32px; margin-bottom: 8px; display: inline-block;
+            animation: bounce 2s ease-in-out infinite;
+        }
+        @media (min-width: 768px) { .feature-icon-modal { font-size: 40px; margin-bottom: 12px; } }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+
+        .feature-title-modal {
+            font-size: 16px; font-weight: 700; color: #667eea; margin: 8px 0 6px 0;
+        }
+        @media (min-width: 768px) { .feature-title-modal { font-size: 18px; margin: 12px 0 8px 0; } }
+
+        .step-list { list-style: none; padding: 0; margin: 8px 0 0 0; }
+        
+        .step-list li {
+            padding: 8px 0 8px 32px; position: relative;
+            color: #4b5563; font-size: 13px; line-height: 1.5; margin-bottom: 4px;
+        }
+        @media (min-width: 768px) {
+            .step-list li { padding: 10px 0 10px 36px; font-size: 14px; margin-bottom: 6px; }
+        }
+
+        .step-list li::before {
+            content: '✓'; position: absolute; left: 0; top: 8px;
+            width: 24px; height: 24px;
+            background: linear-gradient(135deg, #4ECDC4, #7FD8BE);
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            color: white; font-weight: bold; font-size: 12px;
+        }
+        @media (min-width: 768px) {
+            .step-list li::before { width: 28px; height: 28px; font-size: 14px; top: 10px; }
+        }
+
+        .tip-box {
+            background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+            border-left: 4px solid #f59e0b;
+            border-radius: 12px;
+            padding: 16px; margin: 16px 0;
+        }
+        @media (min-width: 768px) { .tip-box { padding: 20px; margin: 20px 0; } }
+
+        .tip-box-title {
+            display: flex; align-items: center; gap: 8px;
+            font-size: 15px; font-weight: 700; color: #d97706; margin-bottom: 10px;
+        }
+        @media (min-width: 768px) { .tip-box-title { font-size: 16px; gap: 10px; margin-bottom: 12px; } }
+
+        .tip-list { list-style: none; padding: 0; margin: 0; }
+        .tip-list li {
+            padding: 6px 0 6px 24px; position: relative;
+            color: #92400e; font-size: 13px; line-height: 1.5;
+        }
+        @media (min-width: 768px) { .tip-list li { padding: 8px 0 8px 28px; font-size: 14px; line-height: 1.6; } }
+
+        .tip-list li::before {
+            content: '→'; position: absolute; left: 0; color: #f59e0b; font-weight: bold;
+        }
+
+        .divider {
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #e5e7eb, transparent);
+            margin: 16px 0;
+        }
+        @media (min-width: 768px) { .divider { margin: 20px 0; } }
+
+        /* Accordion Styles */
+        .accordion-item {
+            margin-bottom: 12px; border-radius: 12px; overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05); transition: all 0.3s ease;
+        }
+
+        .accordion-header {
+            width: 100%; padding: 14px 16px;
+            background: white; border: none;
+            display: flex; justify-content: space-between; align-items: center;
+            cursor: pointer; font-weight: 600; color: #374151; font-size: 14px;
+            transition: background 0.3s;
+        }
+        @media (min-width: 768px) { .accordion-header { padding: 16px 20px; font-size: 16px; } }
+
+        .accordion-header:hover { background-color: #f9fafb; }
+        .accordion-item.active .accordion-header { background-color: #e0f2fe; color: #0369a1; }
+
+        .accordion-content {
+            background: #fff; max-height: 0; overflow: hidden;
+            transition: max-height 0.4s ease-out;
+            padding: 0 16px; border-top: 1px solid transparent;
+        }
+        @media (min-width: 768px) { .accordion-content { padding: 0 20px; } }
+
+        .accordion-item.active .accordion-content {
+            border-top: 1px solid #e5e7eb;
+            padding: 16px; max-height: 500px;
+        }
+        @media (min-width: 768px) { .accordion-item.active .accordion-content { padding: 20px; } }
+
+        .accordion-arrow { transition: transform 0.3s ease; }
+        .accordion-item.active .accordion-arrow { transform: rotate(180deg); }
+        
+        /* Utility for hiding scrollbar in tabs but keeping functionality */
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
+        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+
+        /* Material Content Styling */
+        .material-content h3 { font-size: 1.25rem; font-weight: 700; color: #1f2937; margin-bottom: 0.75rem; }
+        .material-content p { font-size: 1rem; color: #4b5563; line-height: 1.6; margin-bottom: 1rem; }
+        .material-content ul { list-style-type: disc; padding-left: 1.5rem; margin-bottom: 1rem; }
+        .material-content li { color: #4b5563; margin-bottom: 0.5rem; }
+        .material-highlight { background-color: #f0f9ff; border-left: 4px solid #3b82f6; padding: 1rem; border-radius: 0.5rem; margin: 1rem 0; }
+    </style>
+  <style>@view-transition { navigation: auto; }</style>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+  <script src="/_sdk/element_sdk.js" type="text/javascript"></script>
+ </head>
+ <body class="min-h-screen flex flex-col">
+  <!-- REMOVED: Splash Screen, Welcome Page, Login Page, Dashboard Page -->
+
+  <!-- Zona Eksplorasi Page (Now default) -->
+  <div id="zonaEksplorasiPage" class="h-screen w-full overflow-y-auto overflow-x-hidden" style="background: linear-gradient(180deg, #f0f9ff 0%, #e0f2fe 50%, #f0fdf4 100%);">
+   <div id="app-container" class="h-full w-full relative"><!-- Decorative Chemistry Background Elements -->
+    <div class="molecule-bg" style="top: 5%; left: 5%;">
+     <svg width="80" height="80" md:width="120" md:height="120" viewbox="0 0 120 120"><circle cx="30" cy="60" r="15" fill="#667eea" /> <circle cx="90" cy="60" r="15" fill="#4ECDC4" /> <circle cx="60" cy="30" r="12" fill="#FFD93D" /> <circle cx="60" cy="90" r="12" fill="#764ba2" /> <line x1="30" y1="60" x2="90" y2="60" stroke="#667eea" stroke-width="3" /> <line x1="60" y1="30" x2="60" y2="90" stroke="#4ECDC4" stroke-width="3" />
+     </svg>
+    </div>
+    <div class="molecule-bg" style="top: 10%; right: 8%;">
+     <svg width="60" height="50" md:width="100" md:height="80" viewbox="0 0 100 80"><circle cx="20" cy="40" r="12" fill="#7FD8BE" /> <circle cx="50" cy="20" r="10" fill="#FFD93D" /> <circle cx="80" cy="40" r="12" fill="#44A8FF" /> <circle cx="50" cy="60" r="10" fill="#764ba2" /> <line x1="20" y1="40" x2="50" y2="20" stroke="#7FD8BE" stroke-width="2" /> <line x1="50" y1="20" x2="80" y2="40" stroke="#FFD93D" stroke-width="2" /> <line x1="80" y1="40" x2="50" y2="60" stroke="#44A8FF" stroke-width="2" /> <line x1="50" y1="60" x2="20" y2="40" stroke="#764ba2" stroke-width="2" />
+     </svg>
+    </div>
+    <div class="molecule-bg" style="bottom: 15%; left: 3%;">
+     <svg width="60" height="70" md:width="80" md:height="100" viewbox="0 0 80 100"><circle cx="40" cy="20" r="10" fill="#4ECDC4" /> <circle cx="40" cy="50" r="12" fill="#667eea" /> <circle cx="40" cy="80" r="10" fill="#FFD93D" /> <line x1="40" y1="20" x2="40" y2="50" stroke="#4ECDC4" stroke-width="3" /> <line x1="40" y1="50" x2="40" y2="80" stroke="#667eea" stroke-width="3" /> <line x1="42" y1="22" x2="42" y2="48" stroke="#4ECDC4" stroke-width="2" />
+     </svg>
+    </div>
+    <div class="molecule-bg" style="bottom: 20%; right: 5%;">
+     <svg width="100" height="70" md:width="140" md:height="100" viewbox="0 0 140 100"><circle cx="20" cy="50" r="12" fill="#764ba2" /> <circle cx="50" cy="50" r="14" fill="#4ECDC4" /> <circle cx="90" cy="50" r="14" fill="#44A8FF" /> <circle cx="120" cy="50" r="12" fill="#7FD8BE" /> <line x1="20" y1="50" x2="50" y2="50" stroke="#764ba2" stroke-width="3" /> <line x1="50" y1="50" x2="90" y2="50" stroke="#4ECDC4" stroke-width="4" /> <line x1="90" y1="50" x2="120" y2="50" stroke="#44A8FF" stroke-width="3" /> <circle cx="70" cy="30" r="8" fill="#FFD93D" /> <line x1="70" y1="30" x2="70" y2="50" stroke="#FFD93D" stroke-width="2" />
+     </svg>
+    </div><!-- Header Section -->
+    <header class="gradient-bg relative overflow-hidden px-4 py-6 md:px-8 md:py-8"><!-- Animated particles -->
+     <div class="absolute inset-0 overflow-hidden">
+      <div class="sparkle absolute" style="top: 20%; left: 10%;">
+       <svg width="20" height="20" viewbox="0 0 20 20"><polygon points="10,0 12,8 20,10 12,12 10,20 8,12 0,10 8,8" fill="rgba(255,255,255,0.6)" />
+       </svg>
+      </div>
+      <div class="sparkle absolute" style="top: 60%; left: 85%; animation-delay: 0.5s;">
+       <svg width="16" height="16" viewbox="0 0 20 20"><polygon points="10,0 12,8 20,10 12,12 10,20 8,12 0,10 8,8" fill="rgba(255,255,255,0.5)" />
+       </svg>
+      </div>
+      <div class="sparkle absolute" style="top: 30%; left: 70%; animation-delay: 1s;">
+       <svg width="12" height="12" viewbox="0 0 20 20"><polygon points="10,0 12,8 20,10 12,12 10,20 8,12 0,10 8,8" fill="rgba(255,255,255,0.4)" />
+       </svg>
+      </div>
+     </div><!-- Navigation Controls -->
+     <div class="relative z-10 text-center max-w-4xl mx-auto">
+      <div class="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm rounded-full px-3 py-1.5 md:px-4 md:py-2 mb-3 md:mb-4"><span class="text-xl md:text-2xl">📚</span> <span id="header-title" class="text-white font-semibold text-base md:text-lg">Zona Eksplorasi</span>
+      </div>
+      <h1 class="text-white text-xl md:text-4xl font-bold mb-2 md:mb-3 drop-shadow-lg">Materi Pembelajaran Hidrokarbon</h1>
+      <p id="header-subtitle" class="text-white/90 text-sm md:text-lg font-medium">Jelajahi dunia hidrokarbon dengan seru! 🚀</p><!-- Progress Indicator -->
+      <div class="mt-4 md:mt-6 max-w-md mx-auto">
+       <div class="flex justify-between text-white/80 text-xs mb-1 md:mb-2"><span>Progress Materi</span> <span id="progress-text">0/4 Selesai</span>
+       </div>
+       <div class="h-2 bg-white/30 rounded-full overflow-hidden">
+        <div id="progress-bar" class="progress-bar h-full bg-[#FFD93D] rounded-full" style="width: 0%"></div>
+       </div>
+      </div>
+     </div>
+    </header><!-- Tab Navigation -->
+    <div class="px-4 md:px-8 -mt-4 relative z-20">
+     <div class="bg-white rounded-2xl shadow-xl p-2 max-w-4xl mx-auto">
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-2" id="tab-container">
+       <button data-tab="0" class="relative tab-btn tab-active rounded-xl py-3 px-2 text-center font-semibold text-sm transition-all duration-300">
+        <span class="absolute top-1 left-2 text-[10px] md:text-xs font-bold opacity-70">1</span>
+        <span class="text-lg md:text-xl block mb-1">🔬</span> <span class="block text-xs md:text-sm">Senyawa HC</span>
+       </button>
+       <button data-tab="1" class="relative tab-btn bg-gray-100 hover:bg-gray-200 rounded-xl py-3 px-2 text-center font-semibold text-sm text-gray-600 transition-all duration-300">
+        <span class="absolute top-1 left-2 text-[10px] md:text-xs font-bold opacity-70">2</span>
+        <span class="text-lg md:text-xl block mb-1">⛽</span> <span class="block text-xs md:text-sm">Alkana</span>
+       </button>
+       <button data-tab="2" class="relative tab-btn bg-gray-100 hover:bg-gray-200 rounded-xl py-3 px-2 text-center font-semibold text-sm text-gray-600 transition-all duration-300">
+        <span class="absolute top-1 left-2 text-[10px] md:text-xs font-bold opacity-70">3</span>
+        <span class="text-lg md:text-xl block mb-1">🧴</span> <span class="block text-xs md:text-sm">Alkena</span>
+       </button>
+       <button data-tab="3" class="relative tab-btn bg-gray-100 hover:bg-gray-200 rounded-xl py-3 px-2 text-center font-semibold text-sm text-gray-600 transition-all duration-300">
+        <span class="absolute top-1 left-2 text-[10px] md:text-xs font-bold opacity-70">4</span>
+        <span class="text-lg md:text-xl block mb-1">🍌</span> <span class="block text-xs md:text-sm">Alkuna</span>
+       </button>
+      </div>
+     </div>
+    </div><!-- Main Content Area -->
+    <main class="px-4 md:px-8 py-6 md:py-8 max-w-6xl mx-auto"><!-- Content Cards Grid -->
+     <div id="content-container"><!-- Section 0: Mengenal Senyawa Hidrokarbon -->
+      <section id="section-0" class="content-section">
+       <div class="grid md:grid-cols-2 gap-4 md:gap-6"><!-- Main Card -->
+        <div class="md:col-span-2 card-hover-explore bg-gradient-to-br from-[#667eea] to-[#764ba2] rounded-3xl p-6 md:p-8 text-white relative overflow-hidden">
+         <div class="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2"></div>
+         <div class="absolute bottom-0 left-0 w-32 h-32 bg-white/10 rounded-full translate-y-1/2 -translate-x-1/2"></div>
+         <div class="relative z-10">
+          <div class="flex items-center gap-3 mb-4">
+           <div class="w-12 h-12 md:w-14 md:h-14 bg-white/20 rounded-2xl flex items-center justify-center text-2xl md:text-3xl floating">
+            🛢️
+           </div>
+           <div><span class="bg-[#FFD93D] text-gray-800 text-[10px] md:text-xs font-bold px-2 py-1 rounded-full">MATERI DASAR</span>
+            <h2 class="text-xl md:text-3xl font-bold mt-1">Mengenal Senyawa Hidrokarbon</h2>
+           </div>
+          </div>
+          <p class="text-white/90 text-sm md:text-lg mb-6">Pelajari dasar-dasar hidrokarbon dan kekhasan atom karbon yang menjadikannya unik dalam membentuk jutaan senyawa berbeda!</p>
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-6">
+           <div class="bg-white/20 backdrop-blur-sm rounded-xl p-3 md:p-4 text-center">
+            <div class="text-xl md:text-2xl mb-1">
+             ⚛️
+            </div>
+            <div class="text-xs md:text-sm font-medium">
+             Atom Karbon
+            </div>
+           </div>
+           <div class="bg-white/20 backdrop-blur-sm rounded-xl p-3 md:p-4 text-center">
+            <div class="text-xl md:text-2xl mb-1">
+             🔗
+            </div>
+            <div class="text-xs md:text-sm font-medium">
+             4 Ikatan
+            </div>
+           </div>
+           <div class="bg-white/20 backdrop-blur-sm rounded-xl p-3 md:p-4 text-center">
+            <div class="text-xl md:text-2xl mb-1">
+             ⛓️
+            </div>
+            <div class="text-xs md:text-sm font-medium">
+             Rantai C
+            </div>
+           </div>
+           <div class="bg-white/20 backdrop-blur-sm rounded-xl p-3 md:p-4 text-center">
+            <div class="text-xl md:text-2xl mb-1">
+             💎
+            </div>
+            <div class="text-xs md:text-sm font-medium">
+             Kekhasan C
+            </div>
+           </div>
+          </div>
+          <a href="mengenal.html" data-section="0" class="progress-link w-full md:w-auto bg-[#FFD93D] hover:bg-[#f5cc1a] text-gray-800 font-bold py-3 px-8 rounded-full transition-all hover:scale-105 shadow-lg active:scale-95 text-sm md:text-base mb-3 inline-block text-center cursor-pointer no-underline"> Mulai Belajar → </a>
+         </div>
+        </div><!-- Sub Cards -->
+        <div class="bg-white rounded-2xl p-5 md:p-6 shadow-lg border-l-4 border-[#4ECDC4]">
+         <div class="flex items-start gap-4">
+          <div class="w-10 h-10 md:w-12 md:h-12 bg-[#4ECDC4]/20 rounded-xl flex items-center justify-center text-xl md:text-2xl shrink-0">
+           📖
+          </div>
+          <div>
+           <h3 class="font-bold text-gray-800 text-base md:text-lg mb-1 md:mb-2">Tahukah Kamu?</h3>
+           <p class="text-gray-600 text-xs md:text-sm mb-0">Hidrokarbon menjadi bahan dasar bahan bakar, plastik, dan berbagai produk industri.</p>
+          </div>
+         </div>
+        </div>
+        <div class="bg-white rounded-2xl p-5 md:p-6 shadow-lg border-l-4 border-[#FFD93D]">
+         <div class="flex items-start gap-4">
+          <div class="w-10 h-10 md:w-12 md:h-12 bg-[#FFD93D]/20 rounded-xl flex items-center justify-center text-xl md:text-2xl shrink-0">
+           ⚠️
+          </div>
+          <div>
+           <h3 class="font-bold text-gray-800 text-base md:text-lg mb-1 md:mb-2">Dampak &amp; Isu</h3>
+           <p class="text-gray-600 text-xs md:text-sm mb-0">Penggunaan hidrokarbon memberi manfaat besar, tetapi juga menimbulkan dampak negatif.</p>
+          </div>
+         </div>
+        </div>
+       </div>
+      </section><!-- Section 1: Alkana -->
+      <section id="section-1" class="content-section hidden">
+       <div class="grid md:grid-cols-2 gap-4 md:gap-6"><!-- Main Card -->
+        <div class="md:col-span-2 card-hover-explore bg-gradient-to-br from-[#44A8FF] to-[#4ECDC4] rounded-3xl p-6 md:p-8 text-white relative overflow-hidden">
+         <div class="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2"></div>
+         <div class="absolute bottom-0 left-0 w-32 h-32 bg-white/10 rounded-full translate-y-1/2 -translate-x-1/2"></div>
+         <div class="relative z-10">
+          <div class="flex items-center gap-3 mb-4">
+           <div class="w-12 h-12 md:w-14 md:h-14 bg-white/20 rounded-2xl flex items-center justify-center text-2xl md:text-3xl floating">
+            ⛽
+           </div>
+           <div><span class="bg-[#FFD93D] text-gray-800 text-[10px] md:text-xs font-bold px-2 py-1 rounded-full">BAHAN BAKAR</span>
+            <h2 class="text-xl md:text-3xl font-bold mt-1">Alkana</h2>
+           </div>
+          </div>
+          <p class="text-white/90 text-sm md:text-lg mb-6">Hidrokarbon jenuh yang hanya memiliki <strong>ikatan kovalen tunggal</strong> antaratom karbonnya. Golongan ini sering disebut Parafin (<em>parum affinis</em>) karena sifat kimianya yang sukar bereaksi dengan zat lain.</p>
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-6">
+           <div class="bg-white/20 backdrop-blur-sm rounded-xl p-3 md:p-4 text-center">
+            <div class="text-xl md:text-2xl mb-1 font-bold font-mono tracking-wider text-white">
+             C-C
+            </div>
+            <div class="text-xs md:text-sm font-medium">
+             Ikatan Tunggal
+            </div>
+           </div>
+           <div class="bg-white/20 backdrop-blur-sm rounded-xl p-3 md:p-4 text-center">
+            <div class="text-xl md:text-2xl mb-1">
+             📝
+            </div>
+            <div class="text-xs md:text-sm font-medium">
+             C<sub>n</sub>H<sub>2n+2</sub>
+            </div>
+           </div>
+           <div class="bg-white/20 backdrop-blur-sm rounded-xl p-3 md:p-4 text-center">
+            <div class="text-xl md:text-2xl mb-1">
+             🔥
+            </div>
+            <div class="text-xs md:text-sm font-medium">
+             Pembakaran
+            </div>
+           </div>
+           <div class="bg-white/20 backdrop-blur-sm rounded-xl p-3 md:p-4 text-center">
+            <div class="text-xl md:text-2xl mb-1">
+             🕯️
+            </div>
+            <div class="text-xs md:text-sm font-medium">
+             Parafin
+            </div>
+           </div>
+          </div>
+          <a href="alkana.html" data-section="1" class="progress-link w-full md:w-auto bg-[#FFD93D] hover:bg-[#f5cc1a] text-gray-800 font-bold py-3 px-8 rounded-full transition-all hover:scale-105 shadow-lg active:scale-95 text-sm md:text-base inline-block text-center cursor-pointer no-underline"> Mulai Belajar → </a>
+         </div>
+        </div><!-- Sub Cards -->
+        <div class="bg-white rounded-2xl p-5 md:p-6 shadow-lg border-l-4 border-[#44A8FF]">
+         <div class="flex items-start gap-4">
+          <div class="w-10 h-10 md:w-12 md:h-12 bg-[#44A8FF]/20 rounded-xl flex items-center justify-center text-xl md:text-2xl shrink-0">
+           🧪
+          </div>
+          <div>
+           <h3 class="font-bold text-gray-800 text-base md:text-lg mb-1 md:mb-2">Tahukah Kamu?</h3>
+           <p class="text-gray-600 text-xs md:text-sm mb-0">Alkana digunakan sebagai sumber energi bagi kendaraan, rumah tangga, dan pembangkit listrik.</p>
+          </div>
+         </div>
+        </div>
+        <div class="bg-white rounded-2xl p-5 md:p-6 shadow-lg border-l-4 border-[#7FD8BE]">
+         <div class="flex items-start gap-4">
+          <div class="w-10 h-10 md:w-12 md:h-12 bg-[#7FD8BE]/20 rounded-xl flex items-center justify-center text-xl md:text-2xl shrink-0">
+           ⚠️
+          </div>
+          <div>
+           <h3 class="font-bold text-gray-800 text-base md:text-lg mb-1 md:mb-2">Dampak &amp; Isu</h3>
+           <p class="text-gray-600 text-xs md:text-sm mb-0">Alkana menyediakan energi yang besar, tetapi penggunaannya dapat menimbulkan emisi gas yang berdampak pada lingkungan.</p>
+          </div>
+         </div>
+        </div>
+       </div>
+      </section><!-- Section 2: Alkena -->
+      <section id="section-2" class="content-section hidden">
+       <div class="grid md:grid-cols-2 gap-4 md:gap-6"><!-- Main Card -->
+        <div class="md:col-span-2 card-hover-explore bg-gradient-to-br from-[#7FD8BE] to-[#4ECDC4] rounded-3xl p-6 md:p-8 text-gray-900 relative overflow-hidden">
+         <div class="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2"></div>
+         <div class="absolute bottom-0 left-0 w-32 h-32 bg-white/10 rounded-full translate-y-1/2 -translate-x-1/2"></div>
+         <div class="relative z-10">
+          <div class="flex items-center gap-3 mb-4">
+           <div class="w-12 h-12 md:w-14 md:h-14 bg-white/20 rounded-2xl flex items-center justify-center text-2xl md:text-3xl floating">
+            🧴
+           </div>
+           <div><span class="bg-[#FFD93D] text-gray-800 text-[10px] md:text-xs font-bold px-2 py-1 rounded-full">PLASTIK &amp; POLIMER</span>
+            <h2 class="text-xl md:text-3xl font-bold mt-1">Alkena</h2>
+           </div>
+          </div>
+          <p class="text-gray-900 text-sm md:text-lg mb-6">Hidrokarbon tak jenuh yang memiliki <strong>ikatan kovalen rangkap dua</strong> antaratom karbonnya. Golongan ini dikenal dengan istilah Olefin (<em>oleum facere</em>) yang berarti 'pembentuk minyak', karena sifatnya yang mudah bereaksi membentuk cairan kental.</p>
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-6">
+           <div class="bg-white/30 backdrop-blur-sm rounded-xl p-3 md:p-4 text-center border border-white/20">
+            <div class="text-xl md:text-2xl mb-1 font-bold font-mono tracking-wider text-white">
+             C=C
+            </div>
+            <div class="text-xs md:text-sm font-bold">
+             Ikatan Rangkap 2
+            </div>
+           </div>
+           <div class="bg-white/30 backdrop-blur-sm rounded-xl p-3 md:p-4 text-center border border-white/20">
+            <div class="text-xl md:text-2xl mb-1">
+             📝
+            </div>
+            <div class="text-xs md:text-sm font-bold">
+             C<sub>n</sub>H<sub>2n</sub>
+            </div>
+           </div>
+           <div class="bg-white/30 backdrop-blur-sm rounded-xl p-3 md:p-4 text-center border border-white/20">
+            <div class="text-xl md:text-2xl mb-1">
+             🔗
+            </div>
+            <div class="text-xs md:text-sm font-bold">
+             Polimerisasi
+            </div>
+           </div>
+           <div class="bg-white/30 backdrop-blur-sm rounded-xl p-3 md:p-4 text-center border border-white/20">
+            <div class="text-xl md:text-2xl mb-1">
+             ♻️
+            </div>
+            <div class="text-xs md:text-sm font-bold">
+             Plastik
+            </div>
+           </div>
+          </div>
+          <a href="alkena.html" data-section="2" class="progress-link w-full md:w-auto bg-[#FFD93D] hover:bg-[#f5cc1a] text-gray-800 font-bold py-3 px-8 rounded-full transition-all hover:scale-105 shadow-lg active:scale-95 text-sm md:text-base inline-block text-center cursor-pointer no-underline"> Mulai Belajar → </a>
+         </div>
+        </div><!-- Sub Cards -->
+        <div class="bg-white rounded-2xl p-5 md:p-6 shadow-lg border-l-4 border-[#7FD8BE]">
+         <div class="flex items-start gap-4">
+          <div class="w-10 h-10 md:w-12 md:h-12 bg-[#7FD8BE]/20 rounded-xl flex items-center justify-center text-xl md:text-2xl shrink-0">
+           📖
+          </div>
+          <div>
+           <h3 class="font-bold text-gray-800 text-base md:text-lg mb-1 md:mb-2">Tahukah Kamu?</h3>
+           <p class="text-gray-600 text-xs md:text-sm mb-0">Alkena dimanfaatkan sebagai bahan pembuatan plastik, karet sintetis, dan berbagai produk industri</p>
+          </div>
+         </div>
+        </div>
+        <div class="bg-white rounded-2xl p-5 md:p-6 shadow-lg border-l-4 border-[#FF6B6B]">
+         <div class="flex items-start gap-4">
+          <div class="w-10 h-10 md:w-12 md:h-12 bg-[#FF6B6B]/20 rounded-xl flex items-center justify-center text-xl md:text-2xl shrink-0">
+           ⚠️
+          </div>
+          <div>
+           <h3 class="font-bold text-gray-800 text-base md:text-lg mb-1 md:mb-2">Dampak &amp; Isu</h3>
+           <p class="text-gray-600 text-xs md:text-sm mb-0">Limbah berbasis alkena sulit terurai dan menjadi tantangan serius bagi lingkungan.</p>
+          </div>
+         </div>
+        </div>
+       </div>
+      </section><!-- Section 3: Alkuna -->
+      <section id="section-3" class="content-section hidden">
+       <div class="grid md:grid-cols-2 gap-4 md:gap-6"><!-- Main Card -->
+        <div class="md:col-span-2 card-hover-explore bg-gradient-to-br from-[#FFD93D] to-[#f5cc1a] rounded-3xl p-6 md:p-8 text-gray-800 relative overflow-hidden">
+         <div class="absolute top-0 right-0 w-40 h-40 bg-white/20 rounded-full -translate-y-1/2 translate-x-1/2"></div>
+         <div class="absolute bottom-0 left-0 w-32 h-32 bg-white/20 rounded-full translate-y-1/2 -translate-x-1/2"></div>
+         <div class="relative z-10">
+          <div class="flex items-center gap-3 mb-4">
+           <div class="w-12 h-12 md:w-14 md:h-14 bg-white/40 rounded-2xl flex items-center justify-center text-2xl md:text-3xl floating">
+            🍌
+           </div>
+           <div><span class="bg-[#764ba2] text-white text-[10px] md:text-xs font-bold px-2 py-1 rounded-full">KARBIT &amp; PEMATANGAN</span>
+            <h2 class="text-xl md:text-3xl font-bold mt-1">Alkuna</h2>
+           </div>
+          </div>
+          <p class="text-gray-700 text-sm md:text-lg mb-6">Hidrokarbon tak jenuh yang memiliki <strong>ikatan kovalen rangkap tiga</strong> antaratom karbonnya. Golongan ini sangat reaktif dan dapat menghasilkan panas yang sangat tinggi saat dibakar sehingga salah satu anggotanya (gas karbit) sering digunakan untuk mengelas logam.</p>
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-6">
+           <div class="bg-white/40 backdrop-blur-sm rounded-xl p-3 md:p-4 text-center">
+            <!-- REMOVED: bg-gradient, bg-clip-text, text-transparent from parent div -->
+            <div class="text-xl md:text-2xl mb-1 font-bold font-mono flex items-center justify-center gap-[2px]">
+             <!-- Applied gradient separately to each span for better mobile support -->
+             <span class="bg-gradient-to-r from-red-500 to-yellow-400 bg-clip-text text-transparent">C</span>
+             <!-- Changed font-mono to font-sans for thicker symbol, adjusted vertical alignment -->
+             <span class="bg-gradient-to-r from-red-500 to-yellow-400 bg-clip-text text-transparent inline-block transform -translate-y-[1px] md:-translate-y-[2px] font-sans text-[1.2em] leading-none">≡</span>
+             <span class="bg-gradient-to-r from-red-500 to-yellow-400 bg-clip-text text-transparent">C</span>
+            </div>
+            <div class="text-xs md:text-sm font-medium">
+             Ikatan Rangkap 3
+            </div>
+           </div>
+           <div class="bg-white/40 backdrop-blur-sm rounded-xl p-3 md:p-4 text-center">
+            <div class="text-xl md:text-2xl mb-1">
+             📝
+            </div>
+            <div class="text-xs md:text-sm font-medium">
+             C<sub>n</sub>H<sub>2n-2</sub>
+            </div>
+           </div>
+           <div class="bg-white/40 backdrop-blur-sm rounded-xl p-3 md:p-4 text-center">
+            <div class="text-xl md:text-2xl mb-1">
+             🔥
+            </div>
+            <div class="text-xs md:text-sm font-medium">
+             Las Karbit
+            </div>
+           </div>
+           <div class="bg-white/40 backdrop-blur-sm rounded-xl p-3 md:p-4 text-center">
+            <div class="text-xl md:text-2xl mb-1">
+             🪨
+            </div>
+            <div class="text-xs md:text-sm font-medium">
+             Batu Karbit
+            </div>
+           </div>
+          </div>
+          <a href="alkuna.html" data-section="3" class="progress-link w-full md:w-auto bg-[#764ba2] hover:bg-[#5d3a80] text-white font-bold py-3 px-8 rounded-full transition-all hover:scale-105 shadow-lg active:scale-95 text-sm md:text-base inline-block text-center cursor-pointer no-underline"> Mulai Belajar → </a>
+         </div>
+        </div><!-- Sub Cards -->
+        <div class="bg-white rounded-2xl p-5 md:p-6 shadow-lg border-l-4 border-[#FFD93D]">
+         <div class="flex items-start gap-4">
+          <div class="w-10 h-10 md:w-12 md:h-12 bg-[#FFD93D]/20 rounded-xl flex items-center justify-center text-xl md:text-2xl shrink-0">
+           📖
+          </div>
+          <div>
+           <h3 class="font-bold text-gray-800 text-base md:text-lg mb-1 md:mb-2">Tahukah Kamu?</h3>
+           <p class="text-gray-600 text-xs md:text-sm mb-0">Alkuna digunakan dalam pengelasan logam dan pematangan buah secara buatan.</p>
+          </div>
+         </div>
+        </div>
+        <div class="bg-white rounded-2xl p-5 md:p-6 shadow-lg border-l-4 border-[#FF6B6B]">
+         <div class="flex items-start gap-4">
+          <div class="w-10 h-10 md:w-12 md:h-12 bg-[#FF6B6B]/20 rounded-xl flex items-center justify-center text-xl md:text-2xl shrink-0">
+           ⚠️
+          </div>
+          <div>
+           <h3 class="font-bold text-gray-800 text-base md:text-lg mb-1 md:mb-2">Dampak &amp; Isu</h3>
+           <p class="text-gray-600 text-xs md:text-sm mb-0">Penggunaan alkuna, seperti karbit, berisiko jika tidak sesuai prosedur keamanan.</p>
+          </div>
+         </div>
+        </div>
+       </div>
+      </section>
+     </div><!-- Quick Tips Section -->
+     <div class="mt-6 md:mt-8 bg-gradient-to-r from-[#667eea]/10 to-[#764ba2]/10 rounded-2xl p-4 md:p-6">
+      <div class="flex items-center gap-3 mb-4"><span class="text-xl md:text-2xl">💡</span>
+       <h3 class="font-bold text-gray-800 text-base md:text-lg">Tips Belajar</h3>
+      </div>
+      <div class="grid md:grid-cols-3 gap-4">
+       <div class="bg-white rounded-xl p-3 md:p-4 shadow-sm">
+        <div class="text-lg md:text-xl mb-2">
+         📚
+        </div>
+        <p class="text-xs md:text-sm text-gray-600">Pelajari materi secara berurutan untuk pemahaman yang lebih baik</p>
+       </div>
+       <div class="bg-white rounded-xl p-3 md:p-4 shadow-sm">
+        <div class="text-lg md:text-xl mb-2">
+         🎯
+        </div>
+        <p class="text-xs md:text-sm text-gray-600">Kerjakan latihan soal setelah selesai membaca materi</p>
+       </div>
+       <div class="bg-white rounded-xl p-3 md:p-4 shadow-sm">
+        <div class="text-lg md:text-xl mb-2">
+         🔄
+        </div>
+        <p class="text-xs md:text-sm text-gray-600">Ulangi materi yang belum dikuasai sampai paham</p>
+       </div>
+      </div>
+     </div>
+    </main><!-- Help Modal -->
+    <div id="help-modal" class="modal-overlay">
+     <div class="modal-content">
+      <div class="modal-header" style="justify-content: center; position: relative;">
+       <div style="display: flex; align-items: center; gap: 8px;">
+        <span style="font-size: 28px;">❓</span>
+        <h2>Petunjuk Penggunaan</h2>
+       </div>
+       <button class="modal-close" id="btn-close-help" style="position: absolute; right: 0; margin-left: 0;">
+        <svg width="20" height="20" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18" /> <line x1="6" y1="6" x2="18" y2="18" />
+        </svg></button>
+      </div><!-- Intro Section -->
+      <div style="background: linear-gradient(135deg, #667eea15, #4ECDC415); border-radius: 12px; padding: 12px; margin-bottom: 20px; border-left: 4px solid #667eea;">
+       <p style="margin: 0; color: #1f2937; font-size: 14px; line-height: 1.6;"><strong style="color: #667eea; font-size: 15px;">🎓 Zona Eksplorasi</strong><br>
+        adalah area untuk mendalami konsep hidrokarbon secara interaktif. Terdapat tiga fitur utama yang siap membantu perjalanan belajarmu!</p>
+      </div><!-- Feature 1: Accordion List -->
+      <div class="feature-card-modal">
+       <div class="feature-icon-modal">
+        📑
+       </div>
+       <h3 class="feature-title-modal">a. Fitur <em>Accordion List</em></h3>
+       <p class="feature-description text-sm">Menampilkan materi secara bertahap agar belajarmu lebih terstruktur.</p>
+       <ul class="step-list">
+        <li>Klik judul topik untuk membuka konten yang tersembunyi</li>
+        <li>Baca penjelasan dengan detail dan gambar pendukung</li>
+        <li>Klik lagi untuk menutup dan lanjut ke topik berikutnya</li>
+        <li>Atur sendiri ritme belajarmu tanpa takut kewalahan.</li>
+       </ul>
+      </div><!-- Feature 2: Pop-up -->
+      <div class="feature-card-modal">
+       <div class="feature-icon-modal">
+        💬
+       </div>
+       <h3 class="feature-title-modal">b. Fitur <em>Pop-up</em></h3>
+       <p class="feature-description text-sm">Memberikan informasi tambahan tanpa harus berpindah halaman.</p>
+       <ul class="step-list">
+        <li>Cari ikon info (ℹ️) atau elemen yang bersinar di halaman</li>
+        <li>Klik untuk memunculkan jendela penjelasan tambahan.</li>
+        <li>Temukan fakta unik, istilah penting, atau ilustrasi detail.</li>
+        <li>Tekan tombol (X) untuk menutup dan kembali fokus.</li>
+       </ul>
+      </div><!-- Feature 3: Database Soal -->
+      <div class="feature-card-modal">
+       <div class="feature-icon-modal">
+        ❓
+       </div>
+       <h3 class="feature-title-modal">c. Latihan Interaktif</h3>
+       <p class="feature-description text-sm">Tantangan soal singkat untuk menguji pemahamanmu secara langsung.</p>
+       <ul class="step-list">
+        <li>Sistem akan menampilkan soal satu per satu.</li>
+        <li>Pilih jawaban yang menurutmu paling tepat.</li>
+        <li>Dapatkan umpan balik (skor/pembahasan) secara instan.</li>
+        <li>Pelajari penjelasannya agar makin paham konsepnya.</li>
+       </ul>
+      </div>
+      <div class="divider"></div><!-- Tips Section -->
+      <div class="tip-box">
+       <div class="tip-box-title" style="justify-content: center;"><span>💡 Tips Belajar dengan MPI</span>
+       </div>
+       <ul class="tip-list">
+        <li><strong><em>Scroll</em> Santai:</strong> Gunakan fitur <em>scroll</em> secara perlahan untuk menelusuri materi panjang dengan nyaman dan teliti</li>
+        <li><strong>Belajar bertahap:</strong> Buka <em>accordion</em> satu per satu, jangan terburu-buru membukanya sekaligus.</li>
+        <li><strong>Rasa Ingin Tahu:</strong> Jangan lewatkan satu pun tombol <em>pop-up</em>, di sana ada informasi penting</li>
+        <li><strong>Latihan aktif:</strong> Kerjakan soal singkat berkala agar memahami materi secara aktif dan terukur</li>
+       </ul>
+      </div><!-- Success Message -->
+      <div style="background: linear-gradient(135deg, #ecfdf5, #d1fae5); border-left: 4px solid #10b981; border-radius: 12px; padding: 12px; margin-top: 16px; text-align: center;">
+       <p style="margin: 0; color: #065f46; font-size: 13px; font-weight: 500;">✨ Siap untuk memulai? Mulai jelajahi materi dengan mengklik tab di bawah! ✨</p>
+      </div>
+      <div class="text-center mt-6">
+       <button id="btn-start-help" class="bg-[#3b82f6] text-white font-bold py-2 px-8 rounded-full shadow-lg hover:bg-blue-600 transition-all transform hover:scale-105">
+        Mulai
+       </button>
+      </div>
+     </div>
+    </div><!-- NEW: Modal Investigasi Kekhasan Atom Karbon -->
+    <div id="modal-kekhasan" class="modal-overlay">
+     <div class="modal-content">
+      <div class="modal-header">
+       <div class="w-10 h-10 bg-gradient-to-br from-[#667eea] to-[#764ba2] rounded-full flex items-center justify-center text-white text-xl">
+        🔬
+       </div>
+       <div>
+        <h2 style="margin: 0; font-size: 18px; md:font-size: 20px; font-weight: bold; color: #374151;">Kekhasan Atom Karbon</h2>
+        <p style="margin: 0; font-size: 13px; md:font-size: 14px; color: #6b7280;">Mengapa atom karbon istimewa?</p>
+       </div><button class="modal-close" id="btn-close-kekhasan">
+        <svg width="20" height="20" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18" /> <line x1="6" y1="6" x2="18" y2="18" />
+        </svg></button>
+      </div><!-- Accordion Container -->
+      <div class="space-y-3"><!-- Accordion Item 1 -->
+       <div class="accordion-item">
+        <button class="accordion-header">
+         <div class="flex items-center gap-3"><span class="bg-blue-100 text-blue-600 p-2 rounded-lg text-lg">⚛️</span> <span>1. Memiliki 4 Elektron Valensi</span>
+         </div><span class="accordion-arrow">▼</span> </button>
+        <div class="accordion-content">
+         <div class="space-y-2">
+          <p class="text-gray-600 leading-relaxed text-sm">Atom karbon (C) berada pada golongan IVA, yang berarti memiliki <strong>4 elektron valensi</strong>.</p>
+          <div class="bg-blue-50 p-3 rounded-lg border border-blue-100 flex items-center gap-4 my-2">
+           <div class="text-2xl">
+            4️⃣
+           </div>
+           <p class="text-xs text-blue-800">Hal ini memungkinkan karbon membentuk <strong>4 ikatan kovalen</strong> yang kuat dengan atom lain untuk mencapai kestabilan (kaidah oktet).</p>
+          </div>
+         </div>
+        </div>
+       </div><!-- Accordion Item 2 -->
+       <div class="accordion-item">
+        <button class="accordion-header">
+         <div class="flex items-center gap-3"><span class="bg-purple-100 text-purple-600 p-2 rounded-lg text-lg">📏</span> <span>2. Ukuran Atom Relatif Kecil</span>
+         </div><span class="accordion-arrow">▼</span> </button>
+        <div class="accordion-content">
+         <div class="space-y-2">
+          <p class="text-gray-600 leading-relaxed text-sm">Karbon terletak pada periode 2, sehingga jari-jari atomnya relatif kecil.</p>
+          <div class="bg-purple-50 p-3 rounded-lg border border-purple-100 my-2">
+           <ul class="text-xs text-purple-900 list-disc list-inside space-y-1">
+            <li>Ikatan kovalen yang terbentuk menjadi <strong>sangat kuat</strong>.</li>
+            <li>Memungkinkan terbentuknya ikatan rangkap dua (=) atau rangkap tiga (≡).</li>
+           </ul>
+          </div>
+         </div>
+        </div>
+       </div><!-- Accordion Item 3 -->
+       <div class="accordion-item">
+        <button class="accordion-header">
+         <div class="flex items-center gap-3"><span class="bg-green-100 text-green-600 p-2 rounded-lg text-lg">🔗</span> <span>3. Membentuk Rantai Karbon</span>
+         </div><span class="accordion-arrow">▼</span> </button>
+        <div class="accordion-content">
+         <div class="space-y-2">
+          <p class="text-gray-600 leading-relaxed text-sm">Kekhasan utama karbon adalah kemampuannya berikatan dengan sesama atom karbon (C-C) membentuk rantai yang panjang.</p>
+          <div class="bg-green-50 p-3 rounded-lg border border-green-100 grid grid-cols-3 gap-2 text-center text-xs my-2">
+           <div class="bg-white p-2 rounded shadow-sm">
+            Lurus
+           </div>
+           <div class="bg-white p-2 rounded shadow-sm">
+            Bercabang
+           </div>
+           <div class="bg-white p-2 rounded shadow-sm">
+            Melingkar (Siklik)
+           </div>
+          </div>
+          <p class="text-xs text-gray-500 italic">Inilah sebabnya mengapa jumlah senyawa karbon di alam sangat banyak!</p>
+         </div>
+        </div>
+       </div>
+      </div>
+     </div>
+    </div>
+    
+    <!-- New Material Reader Modal -->
+    <div id="material-reader-modal" class="modal-overlay">
+     <div class="modal-content" style="max-width: 700px;">
+      <div class="modal-header">
+       <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-cyan-400 rounded-full flex items-center justify-center text-white text-xl">
+        📚
+       </div>
+       <div>
+        <h2 id="material-title" style="margin: 0; font-size: 18px; md:font-size: 20px; font-weight: bold; color: #374151;">Materi Belajar</h2>
+        <p id="material-subtitle" style="margin: 0; font-size: 13px; md:font-size: 14px; color: #6b7280;">Silakan baca materi berikut.</p>
+       </div><button class="modal-close" id="btn-close-material">
+        <svg width="20" height="20" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18" /> <line x1="6" y1="6" x2="18" y2="18" />
+        </svg></button>
+      </div>
+      <div id="material-body" class="material-content space-y-4">
+        <!-- Content will be injected via JS -->
+      </div>
+     </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-6 px-4 text-center">
+     <p class="text-xs md:text-sm text-gray-400">Indah Aulia Putri | Universitas Negeri Yogyakarta</p>
+     <p class="text-[10px] md:text-xs text-gray-500 mt-1">Belajar Kimia Jadi Lebih Seru!</p>
+    </footer><button id="btn-help" class="nav-button" style="left: 20px; top: 20px; bottom: auto; background-color: #3b82f6; color: white;" title="Petunjuk Penggunaan">
+     <svg width="24" height="24" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10" /> <path d="M12 16v-4"></path> <path d="M12 8h.01"></path>
+     </svg></button>
+    <a href="dashboard.html" class="nav-button" style="right: 20px; top: 20px; bottom: auto; background-color: #3b82f6; color: white;" title="Home">
+     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+      <polyline points="9 22 9 12 15 12 15 22"></polyline>
+     </svg>
+    </a>
+   </div>
+  </div><!-- Link Edit Modal -->
+  <div id="linkEditModal" class="link-edit-modal">
+   <div class="link-edit-content">
+    <h3 class="text-lg md:text-xl font-semibold text-gray-800 mb-4">Edit Link <span id="linkName"></span></h3>
+    <div class="mb-4"><label for="linkUrl" class="block text-gray-700 mb-2 text-sm md:text-base">URL Tujuan:</label> <input type="text" id="linkUrl" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm md:text-base" placeholder="https://example.com">
+    </div>
+    <div class="flex justify-end space-x-3"><button id="cancelLinkEdit" class="px-3 py-2 md:px-4 md:py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition-colors text-sm md:text-base"> Batal </button> <button id="saveLinkEdit" class="px-3 py-2 md:px-4 md:py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors text-sm md:text-base"> Simpan </button>
+    </div>
+   </div>
+  </div>
+  <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get all page elements
+            // Removed references to deleted elements
+            const zonaEksplorasiPage = document.getElementById('zonaEksplorasiPage');
+            
+            // Link editing elements
+            const linkEditModal = document.getElementById('linkEditModal');
+            const linkNameElement = document.getElementById('linkName');
+            const linkUrlInput = document.getElementById('linkUrl');
+            const cancelLinkEdit = document.getElementById('cancelLinkEdit');
+            const saveLinkEdit = document.getElementById('saveLinkEdit');
+            let currentEditingButton = null;
+            
+            // Show only Zona Eksplorasi
+            if (zonaEksplorasiPage) {
+                zonaEksplorasiPage.classList.remove('hidden');
+                zonaEksplorasiPage.style.display = 'block';
+            }
+
+            // --- Zona Eksplorasi Specific Logic ---
+            let currentExploreTab = 0;
+            const totalExploreTabs = 4;
+            // Ganti logika visitedExploreTabs menjadi completedSections
+            let completedSections = new Set();
+
+            // Load saved progress from localStorage on start
+            const savedProgress = localStorage.getItem('completedSections');
+            if (savedProgress) {
+                try {
+                    const parsed = JSON.parse(savedProgress);
+                    if (Array.isArray(parsed)) {
+                        completedSections = new Set(parsed);
+                    }
+                } catch (e) {
+                    console.error("Error parsing saved progress:", e);
+                }
+            }
+
+            const exploreTabButtons = document.querySelectorAll('#zonaEksplorasiPage .tab-btn');
+            const exploreContentSections = document.querySelectorAll('#zonaEksplorasiPage .content-section');
+            const exploreProgressBar = document.getElementById('progress-bar');
+            const exploreProgressText = document.getElementById('progress-text');
+
+            // Fungsi untuk update tampilan progress bar
+            function updateExploreProgress() {
+                if(exploreProgressBar && exploreProgressText) {
+                    const progress = (completedSections.size / totalExploreTabs) * 100;
+                    exploreProgressBar.style.width = `${progress}%`;
+                    exploreProgressText.textContent = `${completedSections.size}/${totalExploreTabs} Selesai`;
+                }
+            }
+            
+            // Initial update of progress bar
+            updateExploreProgress();
+
+            function switchExploreTab(index) {
+                if (index < 0 || index >= totalExploreTabs) return;
+
+                currentExploreTab = index;
+                // Hapus baris ini: visitedExploreTabs.add(index); 
+                // Progress tidak lagi bertambah saat switch tab
+
+                // Update tabs UI
+                exploreTabButtons.forEach((btn, i) => {
+                    if (i === index) {
+                        btn.classList.add('tab-active');
+                        btn.classList.remove('bg-gray-100', 'text-gray-600', 'hover:bg-gray-200');
+                    } else {
+                        btn.classList.remove('tab-active');
+                        btn.classList.add('bg-gray-100', 'text-gray-600', 'hover:bg-gray-200');
+                    }
+                });
+
+                // Update content sections
+                exploreContentSections.forEach((section, i) => {
+                    if (i === index) {
+                        section.classList.remove('hidden');
+                    } else {
+                        section.classList.add('hidden');
+                    }
+                });
+                
+                // Tidak perlu panggil update progress di sini karena hanya terjadi saat klik tombol
+            }
+
+            exploreTabButtons.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const tabIndex = parseInt(btn.dataset.tab);
+                    switchExploreTab(tabIndex);
+                });
+            });
+
+            // Logic baru untuk tombol "Mulai Belajar" dengan class .progress-link
+            // Tombol ini adalah <a> tag, jadi kita update state sebelum navigasi terjadi
+            document.querySelectorAll('.progress-link').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const sectionIndex = parseInt(this.getAttribute('data-section'));
+                    
+                    if (!isNaN(sectionIndex)) {
+                        // Tambahkan ke set materi yang sudah dipelajari
+                        if (!completedSections.has(sectionIndex)) {
+                            completedSections.add(sectionIndex);
+                            
+                            // Update progress bar visual (walaupun mungkin sebentar sebelum pindah halaman)
+                            updateExploreProgress();
+                            
+                            // Simpan ke local storage agar persisten saat kembali
+                            localStorage.setItem('completedSections', JSON.stringify([...completedSections]));
+                        }
+                    }
+                    // Kita biarkan event click berlanjut (tidak preventDefault) agar link bekerja (pindah halaman)
+                });
+            });
+
+            // Accordion Logic for "Kekhasan Atom Karbon"
+            const accordionHeaders = document.querySelectorAll('.accordion-header');
+            
+            accordionHeaders.forEach(header => {
+                header.addEventListener('click', function() {
+                    const item = this.parentElement;
+                    const isActive = item.classList.contains('active');
+                    
+                    // Toggle current item
+                    if (isActive) {
+                        item.classList.remove('active');
+                    } else {
+                        item.classList.add('active');
+                    }
+                });
+            });
+
+            // Investigasi Modal Logic
+            const modalKekhasan = document.getElementById('modal-kekhasan');
+            const btnInvestigasi = document.getElementById('btn-investigasi-kekhasan');
+            const btnCloseKekhasan = document.getElementById('btn-close-kekhasan');
+
+            if (btnInvestigasi && modalKekhasan && btnCloseKekhasan) {
+                btnInvestigasi.addEventListener('click', () => {
+                    modalKekhasan.classList.add('active');
+                });
+                
+                btnCloseKekhasan.addEventListener('click', () => {
+                    modalKekhasan.classList.remove('active');
+                });
+                
+                modalKekhasan.addEventListener('click', (e) => {
+                    if (e.target === modalKekhasan) {
+                        modalKekhasan.classList.remove('active');
+                    }
+                });
+            }
+
+
+            // Help modal logic for exploration
+            const helpModal = document.getElementById('help-modal');
+            const btnHelp = document.getElementById('btn-help');
+            const btnCloseHelp = document.getElementById('btn-close-help');
+            const btnStartHelp = document.getElementById('btn-start-help');
+
+            if(btnHelp && helpModal && btnCloseHelp) {
+                btnHelp.addEventListener('click', () => {
+                    helpModal.classList.add('active');
+                });
+
+                btnCloseHelp.addEventListener('click', () => {
+                    helpModal.classList.remove('active');
+                });
+
+                if (btnStartHelp) {
+                    btnStartHelp.addEventListener('click', () => {
+                        helpModal.classList.remove('active');
+                    });
+                }
+
+                helpModal.addEventListener('click', (e) => {
+                    if (e.target === helpModal) {
+                        helpModal.classList.remove('active');
+                    }
+                });
+            }
+            
+            // Editable links functionality
+            document.querySelectorAll('.editable-link').forEach(button => {
+                // Initialize with default URLs from localStorage or empty
+                const linkId = button.getAttribute('data-link-id');
+                const savedUrl = localStorage.getItem(linkId);
+                if (savedUrl) {
+                    button.setAttribute('data-url', savedUrl);
+                } else {
+                    button.setAttribute('data-url', '');
+                }
+                
+                // Add click event for navigation
+                button.addEventListener('click', function(e) {
+                    const url = this.getAttribute('data-url');
+                    if (url && url.trim() !== '') {
+                        window.open(url, '_blank');
+                    } else {
+                        // If no URL is set, open the edit modal
+                        openLinkEditModal(this);
+                    }
+                });
+                
+                // Add right-click event for editing
+                button.addEventListener('contextmenu', function(e) {
+                    e.preventDefault();
+                    openLinkEditModal(this);
+                });
+            });
+            
+            // Function to open link edit modal
+            function openLinkEditModal(button) {
+                currentEditingButton = button;
+                const linkName = button.getAttribute('data-link-name');
+                const currentUrl = button.getAttribute('data-url') || '';
+                
+                linkNameElement.textContent = linkName;
+                linkUrlInput.value = currentUrl;
+                
+                linkEditModal.classList.add('active');
+            }
+            
+            // Cancel link edit
+            cancelLinkEdit.addEventListener('click', function() {
+                linkEditModal.classList.remove('active');
+                currentEditingButton = null;
+            });
+            
+            // Save link edit
+            saveLinkEdit.addEventListener('click', function() {
+                if (currentEditingButton) {
+                    const newUrl = linkUrlInput.value.trim();
+                    const linkId = currentEditingButton.getAttribute('data-link-id');
+                    
+                    // Save to button and localStorage
+                    currentEditingButton.setAttribute('data-url', newUrl);
+                    localStorage.setItem(linkId, newUrl);
+                    
+                    // Close modal
+                    linkEditModal.classList.remove('active');
+                    currentEditingButton = null;
+                    
+                    // Show confirmation
+                    alert('Link berhasil disimpan!');
+                }
+            });
+            
+            // Close modal when clicking outside
+            linkEditModal.addEventListener('click', function(e) {
+                if (e.target === linkEditModal) {
+                    linkEditModal.classList.remove('active');
+                    currentEditingButton = null;
+                }
+            });
+            
+            // Add keyboard shortcut for modal (Escape to close)
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && linkEditModal.classList.contains('active')) {
+                    linkEditModal.classList.remove('active');
+                    currentEditingButton = null;
+                }
+            });
+        });
+    </script>
+ </body>
+</html>

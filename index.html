@@ -1,0 +1,380 @@
+<!doctype html>
+<html lang="id">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Multimedia Pembelajaran Hidrokarbon</title>
+  <link rel="icon" href="favicon.png" type="image/png">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap');
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f0f9ff;
+            overflow-x: hidden;
+            -webkit-tap-highlight-color: transparent; /* Remove tap highlight on mobile */
+        }
+
+        /* --- Animations & Utilities --- */
+        
+        .molecule {
+            position: absolute;
+            border-radius: 50%;
+            animation: float 8s infinite ease-in-out;
+            pointer-events: none;
+        }
+        
+        /* Responsive Molecules Sizes */
+        .molecule-1 {
+            width: 80px; height: 80px;
+            background-color: rgba(59, 130, 246, 0.2);
+            top: 10%; left: 5%;
+            animation-delay: 0s;
+        }
+        @media (min-width: 768px) { .molecule-1 { width: 120px; height: 120px; left: 10%; } }
+        
+        .molecule-2 {
+            width: 60px; height: 60px;
+            background-color: rgba(16, 185, 129, 0.2);
+            top: 15%; right: 5%;
+            animation-delay: 1s;
+        }
+        @media (min-width: 768px) { .molecule-2 { width: 80px; height: 80px; top: 20%; right: 15%; } }
+        
+        .molecule-3 {
+            width: 100px; height: 100px;
+            background-color: rgba(245, 158, 11, 0.2);
+            bottom: 10%; left: 5%;
+            animation-delay: 2s;
+        }
+        @media (min-width: 768px) { .molecule-3 { width: 150px; height: 150px; bottom: 15%; left: 15%; } }
+        
+        .molecule-4 {
+            width: 70px; height: 70px;
+            background-color: rgba(236, 72, 153, 0.2);
+            bottom: 15%; right: 5%;
+            animation-delay: 3s;
+        }
+        @media (min-width: 768px) { .molecule-4 { width: 100px; height: 100px; bottom: 20%; right: 10%; } }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(10deg); }
+        }
+        
+        .carbon-atom {
+            width: 50px; height: 50px;
+            background-color: #374151;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 2;
+        }
+        @media (min-width: 768px) { .carbon-atom { width: 60px; height: 60px; } }
+        
+        .hydrogen-atom {
+            width: 25px; height: 25px;
+            background-color: #60a5fa;
+            animation: orbitAround 4s infinite linear;
+        }
+        @media (min-width: 768px) { .hydrogen-atom { width: 30px; height: 30px; } }
+        
+        .h1 { animation-delay: 0s; }
+        .h2 { animation-delay: 1s; }
+        .h3 { animation-delay: 2s; }
+        .h4 { animation-delay: 3s; }
+        
+        @keyframes orbitAround {
+            0% { transform: rotate(0deg) translateX(60px) rotate(0deg); }
+            100% { transform: rotate(360deg) translateX(60px) rotate(-360deg); }
+        }
+        @media (min-width: 768px) {
+            @keyframes orbitAround {
+                0% { transform: rotate(0deg) translateX(80px) rotate(0deg); }
+                100% { transform: rotate(360deg) translateX(80px) rotate(-360deg); }
+            }
+        }
+
+        .btn-shine {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn-shine::after {
+            content: '';
+            position: absolute;
+            top: -50%; left: -50%;
+            width: 200%; height: 200%;
+            background: linear-gradient(
+                to right,
+                rgba(255, 255, 255, 0) 0%,
+                rgba(255, 255, 255, 0.3) 50%,
+                rgba(255, 255, 255, 0) 100%
+            );
+            transform: rotate(30deg);
+            animation: shine 3s infinite;
+        }
+        
+        @keyframes shine {
+            0% { left: -100%; opacity: 0; }
+            20% { left: 100%; opacity: 0.6; }
+            100% { left: 100%; opacity: 0; }
+        }
+        
+        .shake { animation: shake 0.5s; }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+            20%, 40%, 60%, 80% { transform: translateX(5px); }
+        }
+        
+        .form-field:focus-within label {
+            transform: translateY(-24px) scale(0.8);
+            color: #3b82f6;
+        }
+        
+        .form-field input:not(:placeholder-shown) + label {
+            transform: translateY(-24px) scale(0.8);
+            color: #3b82f6;
+        }
+        
+        .form-field label {
+            transform-origin: left top;
+            transition: all 0.2s ease-out;
+        }
+        
+        .slide-up { animation: slideUp 0.8s ease-out; }
+        @keyframes slideUp { from { transform: translateY(50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        
+        .scale-in { animation: scaleIn 0.5s ease-out; }
+        @keyframes scaleIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+        .splash-screen {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #0ea5e9, #3b82f6);
+            z-index: 1000;
+            transition: opacity 0.5s ease-out;
+            padding: 20px;
+        }
+        
+        .splash-content {
+            text-align: center;
+            color: white;
+            width: 100%;
+            max-width: 600px;
+        }
+
+        .molecule-icon {
+            position: relative;
+            width: 140px; height: 140px;
+            margin: 0 auto 20px;
+        }
+        @media (min-width: 768px) { .molecule-icon { width: 200px; height: 200px; } }
+        
+        .atom {
+            position: absolute;
+            border-radius: 50%;
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.8);
+        }
+
+        .loading-bar {
+            width: 180px; height: 6px;
+            background-color: rgba(255, 255, 255, 0.3);
+            border-radius: 3px;
+            margin-top: 30px;
+            overflow: hidden;
+            margin-left: auto; margin-right: auto;
+        }
+        @media (min-width: 768px) { .loading-bar { width: 200px; } }
+        
+        .loading-progress {
+            height: 100%;
+            background-color: white;
+            border-radius: 3px;
+            width: 0%;
+            transition: width 3s ease-in-out;
+        }
+
+        .hidden { display: none !important; }
+    </style>
+  <style>@view-transition { navigation: auto; }</style>
+ </head>
+ <body class="min-h-screen flex flex-col bg-white">
+  
+  <!-- 1. SPLASH SCREEN -->
+  <div id="splashScreen" class="splash-screen">
+   <!-- Background Image with Low Opacity -->
+   <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-image: url('https://images.unsplash.com/photo-1532094349884-543bc11b234d?w=1920'); background-size: cover; background-position: center; opacity: 0.15; z-index: 0;"></div>
+   
+   <!-- Logos at Top Right -->
+   <div style="position: absolute; top: 16px; right: 16px; display: flex; gap: 10px; align-items: center; z-index: 2;">
+    <img src="https://lh3.googleusercontent.com/d/1euA79C3pUweLpHp6t7WYU-YvjaiZfQpE" alt="Logo UNY" class="h-10 md:h-14 lg:h-16 w-auto drop-shadow-md" onerror="this.style.display='none'"> 
+    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/9c/Logo_of_Ministry_of_Education_and_Culture_of_Republic_of_Indonesia.svg/1200px-Logo_of_Ministry_of_Education_and_Culture_of_Republic_of_Indonesia.svg.png" alt="Logo Tut Wuri Handayani" class="h-10 md:h-14 lg:h-16 w-auto drop-shadow-md" onerror="this.style.display='none'">
+   </div>
+   
+   <div class="splash-content" style="position: relative; z-index: 1;">
+    <div class="molecule-icon">
+     <div class="atom carbon-atom"></div>
+     <div class="atom hydrogen-atom h1"></div>
+     <div class="atom hydrogen-atom h2"></div>
+     <div class="atom hydrogen-atom h3"></div>
+     <div class="atom hydrogen-atom h4"></div>
+    </div>
+    <h1 class="text-4xl sm:text-5xl md:text-6xl font-bold mb-3 slide-up leading-tight" style="letter-spacing: 0.05em;">HIDROKARBON</h1>
+    <p class="text-lg sm:text-xl md:text-2xl font-semibold mb-2 slide-up px-4" style="animation-delay: 0.2s">Bermuatan Socio-Scientific Issue</p>
+    <p class="text-sm sm:text-base md:text-lg font-light mb-6 slide-up px-4" style="animation-delay: 0.3s; font-style: italic; opacity: 0.95;">"Menjelajahi Jejak Karbon dalam Kehidupan"</p>
+    <div class="loading-bar">
+     <div id="loadingProgress" class="loading-progress"></div>
+    </div>
+   </div>
+   
+   <!-- Footer -->
+   <div style="position: absolute; bottom: 16px; left: 0; right: 0; text-align: center; color: white; font-size: 12px; md:font-size: 14px; opacity: 0.9; z-index: 2; padding: 0 16px;">
+    © Indah Aulia Putri | Universitas Negeri Yogyakarta
+   </div>
+  </div>
+
+  <!-- 2. LOGIN PAGE -->
+  <div id="loginPage" class="container mx-auto px-4 py-8 flex-grow flex flex-col items-center justify-center relative z-10 hidden bg-[#f0f9ff] min-h-screen min-w-full">
+   <!-- Background Molecules -->
+   <div class="molecule molecule-1"></div>
+   <div class="molecule molecule-2"></div>
+   <div class="molecule molecule-3"></div>
+   <div class="molecule molecule-4"></div>
+   
+   <div class="w-full max-w-md bg-white rounded-2xl shadow-xl overflow-hidden scale-in relative z-20">
+    <!-- Header -->
+    <div class="bg-gradient-to-r from-blue-500 to-cyan-400 p-6 text-center">
+     <div class="flex justify-center mb-4">
+      <!-- Simple Methane Molecule SVG -->
+      <svg width="80" height="80" viewbox="0 0 100 100" class="animate-pulse">
+        <circle cx="50" cy="50" r="15" fill="#374151" /> <!-- Carbon --> 
+        <circle cx="50" cy="20" r="10" fill="#60a5fa" /> <!-- H top --> 
+        <circle cx="20" cy="50" r="10" fill="#60a5fa" /> <!-- H left --> 
+        <circle cx="80" cy="50" r="10" fill="#60a5fa" /> <!-- H right --> 
+        <circle cx="50" cy="80" r="10" fill="#60a5fa" /> <!-- H bottom --> 
+        <line x1="50" y1="35" x2="50" y2="20" stroke="#6b7280" stroke-width="2" /> <!-- Bond top --> 
+        <line x1="35" y1="50" x2="20" y2="50" stroke="#6b7280" stroke-width="2" /> <!-- Bond left --> 
+        <line x1="65" y1="50" x2="80" y2="50" stroke="#6b7280" stroke-width="2" /> <!-- Bond right --> 
+        <line x1="50" y1="65" x2="50" y2="80" stroke="#6b7280" stroke-width="2" /> <!-- Bond bottom -->
+      </svg>
+     </div>
+     <h1 class="text-xl md:text-3xl font-bold text-white">Multimedia Pembelajaran Interaktif</h1>
+     <h2 class="text-lg md:text-2xl font-semibold text-white mt-2">Hidrokarbon</h2>
+     <p class="text-white text-opacity-90 mt-2 text-sm md:text-base">Untuk Peserta Didik Kelas XI SMA</p>
+    </div>
+    
+    <!-- Form Section -->
+    <div class="p-6">
+     <div class="mb-6">
+      <div class="form-field relative mb-4">
+        <input type="text" id="nama" class="w-full border-b-2 border-gray-300 py-2 px-1 text-gray-700 focus:outline-none focus:border-blue-500 transition-all text-base" placeholder=" " required autocomplete="off"> 
+        <label for="nama" class="absolute left-1 top-2 text-gray-500 pointer-events-none text-sm md:text-base">Nama Lengkap</label>
+      </div>
+      <div class="form-field relative">
+        <input type="text" id="sekolah" class="w-full border-b-2 border-gray-300 py-2 px-1 text-gray-700 focus:outline-none focus:border-blue-500 transition-all text-base" placeholder=" " required autocomplete="off"> 
+        <label for="sekolah" class="absolute left-1 top-2 text-gray-500 pointer-events-none text-sm md:text-base">Asal Sekolah</label>
+      </div>
+     </div>
+     <!-- Mengganti button dengan a href sesuai permintaan -->
+     <a href="dashboard.html" id="mulaiButton" class="btn-shine block w-full bg-gradient-to-r from-blue-500 to-cyan-400 text-white font-bold py-3 px-4 rounded-lg hover:from-blue-600 hover:to-cyan-500 transition-all shadow-md transform active:scale-95 text-center"> Masuk </a>
+     <div id="errorMessage" class="hidden mt-4 text-center text-red-500 font-medium text-sm"></div>
+    </div>
+    
+    <!-- Footer -->
+    <div class="bg-gray-50 p-4 text-center text-gray-500 text-xs md:text-sm">
+     © Indah Aulia Putri | Universitas Negeri Yogyakarta
+    </div>
+   </div>
+  </div>
+
+  <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get page elements
+            const splashScreen = document.getElementById('splashScreen');
+            const loginPage = document.getElementById('loginPage');
+            
+            // Get interactive elements
+            const loadingProgress = document.getElementById('loadingProgress');
+            const mulaiButton = document.getElementById('mulaiButton');
+            const namaInput = document.getElementById('nama');
+            const sekolahInput = document.getElementById('sekolah');
+            const errorMessage = document.getElementById('errorMessage');
+            
+            // Initial State: Show Splash, Hide Login
+            loginPage.style.display = 'none';
+            
+            // 1. Splash Screen Animation
+            setTimeout(() => {
+                loadingProgress.style.width = '100%';
+            }, 100);
+            
+            // 2. Transition to Login Page after 3 seconds
+            setTimeout(() => {
+                splashScreen.style.opacity = '0';
+                setTimeout(() => {
+                    splashScreen.style.display = 'none';
+                    loginPage.style.display = 'flex'; // Show Login Page
+                    loginPage.classList.remove('hidden');
+                }, 500);
+            }, 3000);
+            
+            // 3. Login Button Logic
+            mulaiButton.addEventListener('click', function(e) {
+                const nama = namaInput.value.trim();
+                const sekolah = sekolahInput.value.trim();
+                
+                if (nama === '' || sekolah === '') {
+                    // Mencegah link berpindah halaman jika validasi gagal
+                    e.preventDefault();
+
+                    // Validation Error
+                    errorMessage.textContent = 'Mohon isi nama dan asal sekolah terlebih dahulu!';
+                    errorMessage.classList.remove('hidden');
+                    
+                    // Add shake animation
+                    const form = document.querySelector('.w-full.max-w-md');
+                    form.classList.add('shake');
+                    setTimeout(() => {
+                        form.classList.remove('shake');
+                    }, 500);
+                    
+                    // Highlight empty fields
+                    if (nama === '') namaInput.classList.add('border-red-500');
+                    if (sekolah === '') sekolahInput.classList.add('border-red-500');
+                    
+                } else {
+                    // Success
+                    // Simpan data user ke session storage
+                    sessionStorage.setItem('userName', nama);
+                    sessionStorage.setItem('userSchool', sekolah);
+                    
+                    // Link akan otomatis mengarahkan ke dashboard.html
+                }
+            });
+            
+            // 4. Clear validation errors when typing
+            namaInput.addEventListener('input', function() {
+                if (this.value.trim() !== '') {
+                    this.classList.remove('border-red-500');
+                    if (sekolahInput.value.trim() !== '') errorMessage.classList.add('hidden');
+                }
+            });
+            
+            sekolahInput.addEventListener('input', function() {
+                if (this.value.trim() !== '') {
+                    this.classList.remove('border-red-500');
+                    if (namaInput.value.trim() !== '') errorMessage.classList.add('hidden');
+                }
+            });
+        });
+    </script>
+ </body>
+</html>

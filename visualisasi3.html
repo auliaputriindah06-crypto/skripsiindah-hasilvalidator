@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visualisasi 3D Ikatan Rangkap 3 - Etuna</title>
+    <link rel="icon" href="favicon.png" type="image/png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.146.0/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.146.0/examples/js/controls/OrbitControls.js"></script>
+    <style>
+        body { margin: 0; overflow: hidden; background-color: #020617; font-family: 'Segoe UI', sans-serif; touch-action: none; }
+        #ui-layer { 
+            position: absolute; top: 0; left: 0; padding: 1rem; 
+            pointer-events: none; width: 100%; height: 100%;
+            display: flex; flex-direction: column; justify-content: space-between;
+            color: white; z-index: 10; 
+        }
+        .interactive { pointer-events: auto; }
+        canvas { display: block; width: 100vw; height: 100vh; }
+        .glass { 
+            background: rgba(30, 41, 59, 0.7); 
+            backdrop-filter: blur(12px); 
+            border: 1px solid rgba(255,255,255,0.1); 
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+        .info-scroll::-webkit-scrollbar { width: 3px; }
+        .info-scroll::-webkit-scrollbar-thumb { background: rgba(59, 130, 246, 0.5); border-radius: 10px; }
+        .glow-text { text-shadow: 0 0 10px rgba(59, 130, 246, 0.8); }
+        
+        /* Accordion Styling */
+        summary { list-style: none; cursor: pointer; }
+        summary::-webkit-details-marker { display: none; }
+        details[open] summary .chevron { transform: rotate(180deg); }
+        .chevron { transition: transform 0.3s ease; }
+    </style>
+</head>
+<body>
+
+    <div id="ui-layer">
+        <!-- Control Panel Utama -->
+        <div class="max-w-full md:max-w-sm interactive">
+            <div class="glass p-4 rounded-3xl space-y-4">
+                <header>
+                    <h1 class="text-xl font-black text-blue-400 glow-text">ETUNA 3D</h1>
+                    <p class="text-[9px] text-blue-200/70 tracking-widest uppercase">Visualisasi Orbital C₂H₂</p>
+                </header>
+                
+                <div class="space-y-3">
+                    <!-- Mode Toggle -->
+                    <div class="bg-black/20 p-2 rounded-xl border border-white/5">
+                        <div class="flex gap-2">
+                            <button id="viewOrbital" class="flex-1 py-1.5 rounded-lg text-[10px] font-bold bg-blue-600 text-white transition-all shadow-lg shadow-blue-900/20">ORBITAL</button>
+                            <button id="viewStick" class="flex-1 py-1.5 rounded-lg text-[10px] font-bold bg-slate-700 text-slate-300 hover:bg-slate-600 transition-all">STRUKTUR</button>
+                        </div>
+                    </div>
+
+                    <!-- Accordion: Ikatan Rangkap 3 -->
+                    <details class="group">
+                        <summary class="flex items-center justify-between p-2 bg-white/5 rounded-xl hover:bg-white/10 transition-colors">
+                            <span class="text-xs font-bold text-blue-300 uppercase tracking-tight">Ikatan Rangkap 3</span>
+                            <svg class="chevron w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </summary>
+                        <div class="mt-2 space-y-1 px-1">
+                            <label class="flex items-center justify-between p-2 hover:bg-white/5 rounded-lg cursor-pointer">
+                                <div class="flex items-center gap-3">
+                                    <span class="w-2 h-2 rounded-full bg-yellow-400 shadow-[0_0_8px_#facc15]"></span>
+                                    <span class="text-[11px] font-medium text-yellow-100">Ikatan Sigma (σ)</span>
+                                </div>
+                                <input type="checkbox" id="toggleSigma" checked class="w-3 h-3 accent-yellow-400 cursor-pointer">
+                            </label>
+                            <label class="flex items-center justify-between p-2 hover:bg-white/5 rounded-lg cursor-pointer">
+                                <div class="flex items-center gap-3">
+                                    <span class="w-2 h-2 rounded-full bg-purple-500 shadow-[0_0_8px_#a855f7]"></span>
+                                    <span class="text-[11px] font-medium text-purple-100">Ikatan Pi₁ (π)</span>
+                                </div>
+                                <input type="checkbox" id="togglePi1" checked class="w-3 h-3 accent-purple-500 cursor-pointer">
+                            </label>
+                            <label class="flex items-center justify-between p-2 hover:bg-white/5 rounded-lg cursor-pointer">
+                                <div class="flex items-center gap-3">
+                                    <span class="w-2 h-2 rounded-full bg-teal-400 shadow-[0_0_8px_#2dd4bf]"></span>
+                                    <span class="text-[11px] font-medium text-teal-100">Ikatan Pi₂ (π)</span>
+                                </div>
+                                <input type="checkbox" id="togglePi2" checked class="w-3 h-3 accent-teal-400 cursor-pointer">
+                            </label>
+                        </div>
+                    </details>
+                </div>
+            </div>
+        </div>
+
+        <!-- Accordion: Kenapa terlihat ada 5 bagian? -->
+        <div class="max-w-full md:max-w-sm interactive">
+            <details class="glass rounded-3xl overflow-hidden group">
+                <summary class="flex items-center justify-between p-4 border-l-4 border-blue-500 bg-white/5 hover:bg-white/10 transition-colors">
+                    <h2 class="text-[11px] font-bold text-blue-300 uppercase tracking-tight">Kenapa terlihat ada 5 bagian?</h2>
+                    <svg class="chevron w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                </summary>
+                <div class="p-4 pt-0 info-scroll max-h-56 overflow-y-auto">
+                    <ul class="text-[11px] space-y-3 text-gray-200 mt-3">
+                        <li class="flex gap-2">
+                            <span>💡</span>
+                            <span><b>Penjelasan:</b> Ikatan rangkap 3 terdiri dari 1 Sigma + 2 Pi.</span>
+                        </li>
+                        <li class="flex gap-2">
+                            <span>🌀</span>
+                            <span><b>Ikatan Pi:</b> Secara fisik, satu ikatan Pi memiliki awan elektron yang terbagi menjadi dua lobus. Jadi 2 ikatan Pi tampak seperti 4 awan (2 pasang).</span>
+                        </li>
+                        <li class="flex gap-2">
+                            <span>🔘</span>
+                            <span><b>Total:</b> 1 (Sigma) + 4 (Lobus Pi) = 5 bagian visual, namun secara kimia tetap dihitung 3 ikatan.</span>
+                        </li>
+                        <li class="flex gap-2 p-2 bg-blue-500/10 rounded-lg border border-blue-500/20">
+                            <span>👉</span>
+                            <span class="text-blue-200"><b>Tips:</b> Ganti ke mode STRUKTUR (≡) untuk melihat tampilan 3 garis lurus yang lebih simpel.</span>
+                        </li>
+                    </ul>
+                </div>
+            </details>
+        </div>
+    </div>
+
+    <script>
+        let scene, camera, renderer, controls;
+        let sigmaBonds = [], piBonds1 = [], piBonds2 = [], stickModel = [];
+        let currentMode = 'orbital'; 
+
+        function init() {
+            if (typeof THREE === 'undefined') return;
+
+            scene = new THREE.Scene();
+            scene.fog = new THREE.FogExp2(0x020617, 0.05);
+
+            const fov = window.innerWidth < 768 ? 75 : 60;
+            camera = new THREE.PerspectiveCamera(fov, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.set(4, 3, 6);
+
+            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            document.body.appendChild(renderer.domElement);
+
+            controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.autoRotate = true;
+            controls.autoRotateSpeed = 0.8;
+
+            // Lights
+            scene.add(new THREE.AmbientLight(0xffffff, 0.4));
+            const p1 = new THREE.PointLight(0x60a5fa, 1.5, 20); p1.position.set(5, 5, 5); scene.add(p1);
+            const p2 = new THREE.PointLight(0xffffff, 0.8, 20); p2.position.set(-5, 2, -5); scene.add(p2);
+
+            createMolecule();
+
+            window.addEventListener('resize', onWindowResize, false);
+            
+            // UI Logic
+            const btnOrbital = document.getElementById('viewOrbital');
+            const btnStick = document.getElementById('viewStick');
+
+            const updateVisibility = () => {
+                const sigmaCheck = document.getElementById('toggleSigma').checked;
+                const pi1Check = document.getElementById('togglePi1').checked;
+                const pi2Check = document.getElementById('togglePi2').checked;
+
+                if (currentMode === 'orbital') {
+                    sigmaBonds.forEach(b => b.visible = sigmaCheck);
+                    piBonds1.forEach(b => b.visible = pi1Check);
+                    piBonds2.forEach(b => b.visible = pi2Check);
+                    stickModel.forEach(b => b.visible = false);
+                } else {
+                    sigmaBonds.forEach(b => b.visible = false);
+                    piBonds1.forEach(b => b.visible = false);
+                    piBonds2.forEach(b => b.visible = false);
+                    stickModel.forEach(b => b.visible = true);
+                }
+            };
+
+            btnOrbital.onclick = () => {
+                currentMode = 'orbital';
+                btnOrbital.className = "flex-1 py-1.5 rounded-lg text-[10px] font-bold bg-blue-600 text-white transition-all shadow-lg";
+                btnStick.className = "flex-1 py-1.5 rounded-lg text-[10px] font-bold bg-slate-700 text-slate-300 hover:bg-slate-600 transition-all";
+                updateVisibility();
+            };
+
+            btnStick.onclick = () => {
+                currentMode = 'stick';
+                btnStick.className = "flex-1 py-1.5 rounded-lg text-[10px] font-bold bg-blue-600 text-white transition-all shadow-lg";
+                btnOrbital.className = "flex-1 py-1.5 rounded-lg text-[10px] font-bold bg-slate-700 text-slate-300 hover:bg-slate-600 transition-all";
+                updateVisibility();
+            };
+
+            document.getElementById('toggleSigma').onchange = updateVisibility;
+            document.getElementById('togglePi1').onchange = updateVisibility;
+            document.getElementById('togglePi2').onchange = updateVisibility;
+
+            animate();
+        }
+
+        // Helper untuk membuat Label Huruf di tengah atom
+        function createAtomLabel(text, color = "white") {
+            const canvas = document.createElement('canvas');
+            const size = 256;
+            canvas.width = size;
+            canvas.height = size;
+            const ctx = canvas.getContext('2d');
+            
+            ctx.fillStyle = color;
+            ctx.font = 'Bold 160px Inter, Segoe UI, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            // Sedikit bayangan agar kontras
+            ctx.shadowColor = 'rgba(0,0,0,0.5)';
+            ctx.shadowBlur = 15;
+            ctx.fillText(text, size / 2, size / 2);
+
+            const texture = new THREE.CanvasTexture(canvas);
+            const material = new THREE.SpriteMaterial({ 
+                map: texture, 
+                transparent: true,
+                depthTest: false // Membuat teks muncul di depan meskipun berada di dalam bola
+            });
+            const sprite = new THREE.Sprite(material);
+            sprite.scale.set(0.6, 0.6, 1);
+            sprite.renderOrder = 999; // Memastikan sprite dirender setelah geometri lain
+            return sprite;
+        }
+
+        function createMolecule() {
+            const carbonMat = new THREE.MeshStandardMaterial({ color: 0x111111, roughness: 0.2, metalness: 0.8 });
+            const hydrogenMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.3 });
+            const sigmaMat = new THREE.MeshStandardMaterial({ color: 0xfacc15, emissive: 0xfacc15, emissiveIntensity: 0.3, transparent: true, opacity: 0.9 });
+            const piMat1 = new THREE.MeshPhongMaterial({ color: 0xa855f7, transparent: true, opacity: 0.45, shininess: 80 });
+            const piMat2 = new THREE.MeshPhongMaterial({ color: 0x2dd4bf, transparent: true, opacity: 0.45, shininess: 80 });
+            const stickMat = new THREE.MeshStandardMaterial({ color: 0x94a3b8 });
+
+            const cGeo = new THREE.SphereGeometry(0.5, 32, 32);
+            const hGeo = new THREE.SphereGeometry(0.25, 32, 32);
+
+            // Atom Carbon 1
+            const c1 = new THREE.Mesh(cGeo, carbonMat); c1.position.x = -1; scene.add(c1);
+            const labelC1 = createAtomLabel("C", "#60a5fa"); labelC1.position.copy(c1.position); scene.add(labelC1);
+            
+            // Atom Carbon 2
+            const c2 = new THREE.Mesh(cGeo, carbonMat); c2.position.x = 1; scene.add(c2);
+            const labelC2 = createAtomLabel("C", "#60a5fa"); labelC2.position.copy(c2.position); scene.add(labelC2);
+            
+            // Atom Hydrogen 1
+            const h1 = new THREE.Mesh(hGeo, hydrogenMat); h1.position.x = -2.5; scene.add(h1);
+            const labelH1 = createAtomLabel("H", "#020617"); labelH1.position.copy(h1.position); labelH1.scale.set(0.35, 0.35, 1); scene.add(labelH1);
+            
+            // Atom Hydrogen 2
+            const h2 = new THREE.Mesh(hGeo, hydrogenMat); h2.position.x = 2.5; scene.add(h2);
+            const labelH2 = createAtomLabel("H", "#020617"); labelH2.position.copy(h2.position); labelH2.scale.set(0.35, 0.35, 1); scene.add(labelH2);
+
+            // STICK MODEL
+            const stickGeo = new THREE.CylinderGeometry(0.04, 0.04, 2, 12);
+            const tripleOffsets = [-0.15, 0, 0.15];
+            tripleOffsets.forEach(y => {
+                const s = new THREE.Mesh(stickGeo, stickMat);
+                s.rotation.z = Math.PI / 2; s.position.y = y;
+                s.visible = false; scene.add(s); stickModel.push(s);
+            });
+            const ch1 = new THREE.Mesh(stickGeo, stickMat);
+            ch1.rotation.z = Math.PI / 2; ch1.position.x = -1.75; ch1.scale.y = 0.75; ch1.visible = false;
+            scene.add(ch1); stickModel.push(ch1);
+            const ch2 = new THREE.Mesh(stickGeo, stickMat);
+            ch2.rotation.z = Math.PI / 2; ch2.position.x = 1.75; ch2.scale.y = 0.75; ch2.visible = false;
+            scene.add(ch2); stickModel.push(ch2);
+
+            // ORBITAL MODEL (Sigma)
+            const sigmaGeo = new THREE.CylinderGeometry(0.08, 0.08, 2, 16);
+            const sCC = new THREE.Mesh(sigmaGeo, sigmaMat); sCC.rotation.z = Math.PI / 2; scene.add(sCC); sigmaBonds.push(sCC);
+            const sCH1 = new THREE.Mesh(sigmaGeo, sigmaMat); sCH1.rotation.z = Math.PI / 2; sCH1.position.x = -1.75; sCH1.scale.y = 0.75; scene.add(sCH1); sigmaBonds.push(sCH1);
+            const sCH2 = new THREE.Mesh(sigmaGeo, sigmaMat); sCH2.rotation.z = Math.PI / 2; sCH2.position.x = 1.75; sCH2.scale.y = 0.75; scene.add(sCH2); sigmaBonds.push(sCH2);
+
+            // Pi Clouds
+            let piGeo;
+            try { piGeo = new THREE.CapsuleGeometry(0.4, 1.3, 16, 32); } 
+            catch(e) { piGeo = new THREE.CylinderGeometry(0.4, 0.4, 1.8, 16); }
+
+            const p1a = new THREE.Mesh(piGeo, piMat1); p1a.rotation.z = Math.PI / 2; p1a.position.y = 0.7; scene.add(p1a);
+            const p1b = new THREE.Mesh(piGeo, piMat1); p1b.rotation.z = Math.PI / 2; p1b.position.y = -0.7; scene.add(p1b);
+            piBonds1.push(p1a, p1b);
+
+            const p2a = new THREE.Mesh(piGeo, piMat2); 
+            p2a.rotation.z = Math.PI / 2; p2a.rotation.x = Math.PI / 2; p2a.position.z = 0.7; scene.add(p2a);
+            const p2b = new THREE.Mesh(piGeo, piMat2); 
+            p2b.rotation.z = Math.PI / 2; p2b.rotation.x = Math.PI / 2; p2b.position.z = -0.7; scene.add(p2b);
+            piBonds2.push(p2a, p2b);
+        }
+
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            if (controls) controls.update();
+            renderer.render(scene, camera);
+        }
+
+        window.onload = init;
+    </script>
+</body>
+</html>

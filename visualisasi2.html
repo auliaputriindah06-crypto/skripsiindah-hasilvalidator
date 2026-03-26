@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visualisasi 3D Ikatan Rangkap 2 - Etena</title>
+    <link rel="icon" href="favicon.png" type="image/png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.146.0/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.146.0/examples/js/controls/OrbitControls.js"></script>
+    <style>
+        body { margin: 0; overflow: hidden; background-color: #020617; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; touch-action: none; }
+        #ui-layer { 
+            position: absolute; top: 0; left: 0; padding: 1rem; 
+            pointer-events: none; width: 100%; height: 100%;
+            display: flex; flex-direction: column; gap: 0.75rem;
+            color: white; z-index: 10; 
+        }
+        @media (min-width: 768px) {
+            #ui-layer { padding: 2rem; justify-content: space-between; align-items: flex-start; }
+        }
+        .interactive { pointer-events: auto; }
+        canvas { display: block; width: 100vw; height: 100vh; }
+        .glass { 
+            background: rgba(15, 23, 42, 0.8); 
+            backdrop-filter: blur(16px); 
+            border: 1px solid rgba(255,255,255,0.1); 
+            box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.7);
+        }
+        .info-scroll::-webkit-scrollbar { width: 3px; }
+        .info-scroll::-webkit-scrollbar-thumb { background: rgba(74, 222, 128, 0.5); border-radius: 10px; }
+        .glow-text { text-shadow: 0 0 15px rgba(74, 222, 128, 0.5); }
+        
+        summary { list-style: none; outline: none; }
+        summary::-webkit-details-marker { display: none; }
+        details[open] summary svg { transform: rotate(180deg); }
+        
+        details summary svg { transition: transform 0.2s ease-in-out; }
+    </style>
+</head>
+<body>
+
+    <div id="ui-layer">
+        <!-- Kotak Utama: Judul & Kontrol Komponen -->
+        <div class="w-full md:max-w-sm interactive">
+            <div class="glass p-5 md:p-6 rounded-3xl border-t border-white/10">
+                <header class="mb-5">
+                    <h1 class="text-xl md:text-2xl font-black text-green-400 glow-text leading-tight uppercase tracking-tight">Molekul Etena</h1>
+                    <p class="text-[10px] md:text-xs text-green-200/50 tracking-widest uppercase">Geometri Trigonal Planar (C₂H₄)</p>
+                </header>
+
+                <div class="bg-black/40 p-3 rounded-2xl border border-white/5 mb-5 shadow-inner">
+                    <p class="text-[10px] font-bold text-gray-500 mb-2 uppercase tracking-wider ml-1">Mode Visualisasi</p>
+                    <div class="flex gap-2">
+                        <button id="viewOrbital" class="flex-1 py-2 rounded-xl text-[10px] font-bold bg-green-600 text-white transition-all shadow-lg hover:bg-green-500">ORBITAL</button>
+                        <button id="viewStick" class="flex-1 py-2 rounded-xl text-[10px] font-bold bg-slate-800 text-slate-400 hover:bg-slate-700 transition-all border border-white/5">STRUKTUR (=)</button>
+                    </div>
+                </div>
+                
+                <details class="group">
+                    <summary class="flex items-center justify-between cursor-pointer py-2 px-1 border-b border-white/10 mb-2">
+                        <span class="text-xs font-bold text-gray-300 uppercase tracking-wider">Filter Ikatan Rangkap 2</span>
+                        <svg class="w-4 h-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7"></path></svg>
+                    </summary>
+                    
+                    <div class="space-y-1 py-3 px-1">
+                        <label class="flex items-center justify-between p-3 hover:bg-white/5 rounded-lg cursor-pointer transition-all border border-transparent hover:border-white/5">
+                            <div class="flex items-center gap-3">
+                                <span class="w-3 h-3 rounded-full bg-yellow-400 shadow-[0_0_10px_#facc15]"></span>
+                                <span class="text-xs font-semibold text-yellow-50/90">Ikatan Sigma (σ)</span>
+                            </div>
+                            <input type="checkbox" id="toggleSigma" checked class="w-5 h-5 accent-yellow-400 cursor-pointer">
+                        </label>
+                        <label class="flex items-center justify-between p-3 hover:bg-white/5 rounded-lg cursor-pointer transition-all border border-transparent hover:border-white/5">
+                            <div class="flex items-center gap-3">
+                                <span class="w-3 h-3 rounded-full bg-purple-500 shadow-[0_0_10px_#a855f7]"></span>
+                                <div class="flex flex-col">
+                                    <span class="text-xs font-semibold text-purple-100">Ikatan Pi (π)</span>
+                                    <span class="text-[9px] text-purple-300/60 uppercase">Dua Lobus Elektron</span>
+                                </div>
+                            </div>
+                            <input type="checkbox" id="togglePi" checked class="w-5 h-5 accent-purple-500 cursor-pointer">
+                        </label>
+                    </div>
+                </details>
+            </div>
+        </div>
+
+        <!-- Edu-Info Panel -->
+        <div class="w-full md:max-w-sm interactive mt-auto md:mt-0">
+            <div class="glass p-5 rounded-3xl border-l-4 border-green-500">
+                <details class="group">
+                    <summary class="flex items-center justify-between cursor-pointer pb-2">
+                        <span class="text-xs font-bold text-green-400 uppercase tracking-tighter">Kenapa terlihat ada 3 bagian?</span>
+                        <svg class="w-4 h-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7"></path></svg>
+                    </summary>
+                    
+                    <div class="info-scroll max-h-60 overflow-y-auto pr-2 pt-3">
+                        <div class="text-[10px] md:text-xs space-y-4 text-gray-200">
+                            <div class="flex gap-3 items-start">
+                                <span class="text-green-400 text-lg">💡</span>
+                                <div><b>Penjelasan:</b> Ikatan rangkap 2 terdiri dari 1 Sigma + 1 Pi.</div>
+                            </div>
+                            
+                            <div class="flex gap-3 items-start">
+                                <span class="text-purple-400 text-lg">🌀</span>
+                                <div><b>Ikatan Pi:</b> Satu ikatan Pi memiliki awan elektron yang terbagi menjadi dua lobus (atas & bawah). Inilah sebabnya 1 ikatan Pi tampak seperti 2 bagian visual.</div>
+                            </div>
+                            
+                            <div class="flex gap-3 items-start">
+                                <span class="text-yellow-400 text-lg">🔘</span>
+                                <div><b>Total Visual:</b> 1 (Sigma) + 2 (Lobus Pi) = 3 bagian yang terlihat. Namun secara kimia tetap dihitung <b>2 ikatan</b>.</div>
+                            </div>
+                            
+                            <div class="flex gap-3 items-start border-t border-white/10 pt-3">
+                                <span class="text-green-400 text-lg">👉</span>
+                                <div class="text-green-200/80 italic"><b>Tips:</b> Atom <b>C</b> (Hitam) adalah Karbon dan <b>H</b> (Putih) adalah Hidrogen.</div>
+                            </div>
+                        </div>
+                    </div>
+                </details>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let scene, camera, renderer, controls;
+        let sigmaBonds = [], piBonds = [], stickModel = [];
+        let currentMode = 'orbital';
+
+        // Fungsi Helper untuk membuat label teks 2D pada objek 3D
+        function createTextLabel(text, color) {
+            const canvas = document.createElement('canvas');
+            const size = 256;
+            canvas.width = size;
+            canvas.height = size;
+            const ctx = canvas.getContext('2d');
+            
+            // Background transparan, teks tebal
+            ctx.font = 'Bold 140px Arial';
+            ctx.fillStyle = color;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(text, size / 2, size / 2);
+            
+            const texture = new THREE.CanvasTexture(canvas);
+            const spriteMaterial = new THREE.SpriteMaterial({ 
+                map: texture, 
+                transparent: true,
+                depthTest: false // Agar selalu terlihat di depan atom
+            });
+            const sprite = new THREE.Sprite(spriteMaterial);
+            sprite.renderOrder = 999;
+            return sprite;
+        }
+
+        function init() {
+            if (typeof THREE === 'undefined') return;
+
+            scene = new THREE.Scene();
+            scene.fog = new THREE.FogExp2(0x020617, 0.05);
+
+            const aspect = window.innerWidth / window.innerHeight;
+            const fov = aspect < 1 ? 85 : 55;
+            camera = new THREE.PerspectiveCamera(fov, aspect, 0.1, 1000);
+            camera.position.set(5, 5, 7);
+
+            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            document.body.appendChild(renderer.domElement);
+
+            controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.autoRotate = true;
+            controls.autoRotateSpeed = 0.6;
+            controls.minDistance = 3;
+            controls.maxDistance = 18;
+
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
+            scene.add(ambientLight);
+            
+            const mainLight = new THREE.DirectionalLight(0xffffff, 1);
+            mainLight.position.set(10, 10, 10);
+            scene.add(mainLight);
+
+            const fillLight = new THREE.PointLight(0x4ade80, 0.6, 20);
+            fillLight.position.set(-5, 0, 5);
+            scene.add(fillLight);
+
+            createMolecule();
+
+            window.addEventListener('resize', onWindowResize, false);
+            
+            const btnOrbital = document.getElementById('viewOrbital');
+            const btnStick = document.getElementById('viewStick');
+
+            const updateVisibility = () => {
+                const sigmaCheck = document.getElementById('toggleSigma').checked;
+                const piCheck = document.getElementById('togglePi').checked;
+
+                if (currentMode === 'orbital') {
+                    sigmaBonds.forEach(b => b.visible = sigmaCheck);
+                    piBonds.forEach(b => b.visible = piCheck);
+                    stickModel.forEach(b => b.visible = false);
+                } else {
+                    sigmaBonds.forEach(b => b.visible = false);
+                    piBonds.forEach(b => b.visible = false);
+                    stickModel.forEach(b => b.visible = true);
+                }
+            };
+
+            btnOrbital.onclick = () => {
+                currentMode = 'orbital';
+                btnOrbital.className = "flex-1 py-2 rounded-xl text-[10px] font-bold bg-green-600 text-white transition-all shadow-lg";
+                btnStick.className = "flex-1 py-2 rounded-xl text-[10px] font-bold bg-slate-800 text-slate-400 hover:bg-slate-700 transition-all border border-white/5";
+                updateVisibility();
+            };
+
+            btnStick.onclick = () => {
+                currentMode = 'stick';
+                btnStick.className = "flex-1 py-2 rounded-xl text-[10px] font-bold bg-green-600 text-white transition-all shadow-lg";
+                btnOrbital.className = "flex-1 py-2 rounded-xl text-[10px] font-bold bg-slate-800 text-slate-400 hover:bg-slate-700 transition-all border border-white/5";
+                updateVisibility();
+            };
+
+            document.getElementById('toggleSigma').onchange = updateVisibility;
+            document.getElementById('togglePi').onchange = updateVisibility;
+
+            animate();
+        }
+
+        function createMolecule() {
+            const carbonMat = new THREE.MeshStandardMaterial({ 
+                color: 0x1a1a1a, roughness: 0.1, metalness: 0.9 
+            });
+            const hydrogenMat = new THREE.MeshStandardMaterial({ 
+                color: 0xffffff, roughness: 0.2, metalness: 0.1 
+            });
+            const sigmaMat = new THREE.MeshStandardMaterial({ 
+                color: 0xfacc15, emissive: 0xfacc15, emissiveIntensity: 0.5, transparent: true, opacity: 0.9 
+            });
+            const piMat = new THREE.MeshPhysicalMaterial({ 
+                color: 0xa855f7, transparent: true, opacity: 0.4, 
+                roughness: 0, transmission: 0.2, thickness: 0.5, side: THREE.DoubleSide
+            });
+            const stickMat = new THREE.MeshStandardMaterial({ color: 0x94a3b8, roughness: 0.5 });
+
+            const cGeo = new THREE.SphereGeometry(0.5, 64, 64);
+            const hGeo = new THREE.SphereGeometry(0.3, 32, 32);
+            
+            const bondStickGeo = new THREE.CylinderGeometry(0.06, 0.06, 1, 24);
+            const sCylGeo = new THREE.CylinderGeometry(0.1, 0.1, 1, 24);
+
+            const c1Pos = new THREE.Vector3(-1.1, 0, 0);
+            const c2Pos = new THREE.Vector3(1.1, 0, 0);
+
+            // Carbons & Labels
+            const c1 = new THREE.Mesh(cGeo, carbonMat); c1.position.copy(c1Pos); scene.add(c1);
+            const c2 = new THREE.Mesh(cGeo, carbonMat); c2.position.copy(c2Pos); scene.add(c2);
+            
+            const labelC1 = createTextLabel('C', '#4ade80'); labelC1.position.copy(c1Pos); 
+            labelC1.scale.set(0.6, 0.6, 1); scene.add(labelC1);
+            const labelC2 = createTextLabel('C', '#4ade80'); labelC2.position.copy(c2Pos); 
+            labelC2.scale.set(0.6, 0.6, 1); scene.add(labelC2);
+
+            const angle = Math.PI / 6; 
+            const dist = 1.2;
+            const hPositions = [
+                {x: -1.1 - Math.cos(angle)*dist, y: Math.sin(angle)*dist, z: 0},
+                {x: -1.1 - Math.cos(angle)*dist, y: -Math.sin(angle)*dist, z: 0},
+                {x: 1.1 + Math.cos(angle)*dist, y: Math.sin(angle)*dist, z: 0},
+                {x: 1.1 + Math.cos(angle)*dist, y: -Math.sin(angle)*dist, z: 0}
+            ];
+
+            hPositions.forEach(p => {
+                const pos = new THREE.Vector3(p.x, p.y, p.z);
+                const h = new THREE.Mesh(hGeo, hydrogenMat);
+                h.position.copy(pos);
+                scene.add(h);
+                
+                const labelH = createTextLabel('H', '#1e293b'); // Teks gelap untuk atom putih
+                labelH.position.copy(pos);
+                labelH.scale.set(0.4, 0.4, 1);
+                scene.add(labelH);
+            });
+
+            // --- STICK MODEL (=) ---
+            const stickGap = 0.15;
+            [-stickGap, stickGap].forEach(yOffset => {
+                const s = new THREE.Mesh(bondStickGeo, stickMat);
+                s.rotation.z = Math.PI/2; 
+                s.scale.set(1, 2.2, 1);
+                s.position.y = yOffset;
+                s.visible = false; scene.add(s); stickModel.push(s);
+            });
+            
+            hPositions.forEach(p => {
+                const s = new THREE.Mesh(bondStickGeo, stickMat);
+                const start = new THREE.Vector3(p.x > 0 ? 1.1 : -1.1, 0, 0);
+                const end = new THREE.Vector3(p.x, p.y, p.z);
+                const dir = end.clone().sub(start);
+                s.scale.set(1, dir.length(), 1);
+                s.position.copy(start.clone().add(dir.multiplyScalar(0.5)));
+                s.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), dir.clone().normalize());
+                s.visible = false; scene.add(s); stickModel.push(s);
+            });
+
+            // --- ORBITAL MODEL ---
+            const sCC = new THREE.Mesh(sCylGeo, sigmaMat); 
+            sCC.rotation.z = Math.PI/2; 
+            sCC.scale.set(1, 2.2, 1);
+            scene.add(sCC); sigmaBonds.push(sCC);
+            
+            hPositions.forEach(p => {
+                const s = new THREE.Mesh(sCylGeo, sigmaMat);
+                const start = new THREE.Vector3(p.x > 0 ? 1.1 : -1.1, 0, 0);
+                const end = new THREE.Vector3(p.x, p.y, p.z);
+                const dir = end.clone().sub(start);
+                s.scale.set(1, dir.length(), 1);
+                s.position.copy(start.clone().add(dir.multiplyScalar(0.5)));
+                s.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), dir.clone().normalize());
+                scene.add(s); sigmaBonds.push(s);
+            });
+
+            const piGeo = new THREE.CapsuleGeometry(0.55, 1.3, 20, 40);
+            const pTop = new THREE.Mesh(piGeo, piMat); 
+            pTop.rotation.z = Math.PI/2; pTop.position.y = 0.8; 
+            scene.add(pTop); piBonds.push(pTop);
+            
+            const pBot = new THREE.Mesh(piGeo, piMat); 
+            pBot.rotation.z = Math.PI/2; pBot.position.y = -0.8; 
+            scene.add(pBot); piBonds.push(pBot);
+        }
+
+        function onWindowResize() {
+            const width = window.innerWidth;
+            const height = window.innerHeight;
+            camera.aspect = width / height;
+            camera.fov = width < height ? 85 : 55;
+            camera.updateProjectionMatrix();
+            renderer.setSize(width, height);
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            if (controls) controls.update();
+            renderer.render(scene, camera);
+        }
+
+        window.onload = init;
+    </script>
+</body>
+</html>
