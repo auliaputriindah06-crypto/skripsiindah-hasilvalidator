@@ -743,10 +743,33 @@
           </div>
           <span class="accordion-arrow text-lg transition-transform text-blue-600">▶</span>
          </button>
-         <div class="hidden accordion-content mt-2 pl-4 space-y-2">
-          <div class="bg-white rounded-lg p-3 border-l-4 border-[#44A8FF]">
-           <p class="text-gray-600 text-sm">Tidak larut dalam air (non-polar), larut dalam pelarut organik, seperti eter dan benzena.</p>
-          </div>
+         <div class="hidden accordion-content mt-2 pl-0 sm:pl-4">
+            <!-- Grid Layout -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 mt-2">
+              
+              <!-- Card 1: Tidak Larut -->
+              <div class="bg-white rounded-xl p-3 sm:p-4 border-2 border-gray-100 shadow-sm hover:border-red-200 transition-colors">
+                <div class="flex items-center gap-2 mb-2">
+                  <span class="text-[#ff6b6b] text-xl sm:text-2xl font-black leading-none">×</span>
+                  <h4 class="font-bold text-[#ff6b6b] text-sm sm:text-base">Tidak Larut dalam Air</h4>
+                </div>
+                <p class="text-gray-700 text-xs sm:text-sm leading-relaxed">
+                  Alkena bersifat <strong>nonpolar</strong>, sedangkan air <strong>polar</strong>. Akibatnya, alkena tidak larut dalam air (hidrofobik).
+                </p>
+              </div>
+
+              <!-- Card 2: Larut -->
+              <div class="bg-white rounded-xl p-3 sm:p-4 border-2 border-gray-100 shadow-sm hover:border-green-200 transition-colors">
+                <div class="flex items-center gap-2 mb-2">
+                  <div class="w-5 h-5 sm:w-6 sm:h-6 bg-[#52c498] rounded flex items-center justify-center text-white text-sm font-bold flex-shrink-0">✓</div>
+                  <h4 class="font-bold text-[#52c498] text-sm sm:text-base">Larut dalam Pelarut Nonpolar</h4>
+                </div>
+                <p class="text-gray-700 text-xs sm:text-sm leading-relaxed">
+                  Sesuai prinsip <em>"Like dissolves like"</em>, alkena larut dalam pelarut yang sama-sama nonpolar (contoh: <strong>benzena, eter, kloroform</strong>).
+                </p>
+              </div>
+
+            </div>
          </div>
         </div>
 
